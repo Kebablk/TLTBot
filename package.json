@@ -1,0 +1,13 @@
+{
+  "name": "jsteambot",
+  "version": "1.0.0",
+  "description": "JSTeamBot",
+  "main": "src/main.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/main.js"
+  },
+  "dependencies": {
+    "yahoo-finance2": "^4.0.0"
+  }
+}
