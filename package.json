@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "grammy": "^1.45.1",
+    "twelvedata": "^3.0.1",
     "yahoo-finance2": "^4.0.0"
   },
   "devDependencies": {
