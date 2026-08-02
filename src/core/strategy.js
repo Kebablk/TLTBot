@@ -1,4 +1,4 @@
-// src/core/strategy.js
+// принимает решение
 import YahooFinance from "yahoo-finance2";
 
 const yahooFinance = new YahooFinance();
