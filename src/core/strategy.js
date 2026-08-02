@@ -4,6 +4,7 @@ import YahooFinance from "yahoo-finance2";
 const yahooFinance = new YahooFinance();
 const API_KEY = "YIBWWGPQLKAAZGBZ";
 const FRED_API_KEY = "c6b3e6442d500c408624f67d2fe73369";
+const FED_FUNDS_RATE_SERIES = "FEDFUNDS";
 
 export async function getTLTData() {
   try {
