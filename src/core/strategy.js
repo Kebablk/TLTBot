@@ -3,8 +3,10 @@ import YahooFinance from "yahoo-finance2";
 
 const yahooFinance = new YahooFinance();
 const API_KEY = "YIBWWGPQLKAAZGBZ";
+
 const FRED_API_KEY = "c6b3e6442d500c408624f67d2fe73369";
-const FED_FUNDS_RATE_SERIES = "FEDFUNDS";
+const FED_FUNDS_RATE_SERIES = "DFEDTARU";
+const CPI_SERIES = "CPIAUCSL";
 
 export async function getTLTData() {
   try {
@@ -41,10 +43,48 @@ export async function getTLTData() {
       0,
     );
 
+    let fedRate = null;
+    try {
+      const fedResponse = await fetch(
+        `https://api.stlouisfed.org/fred/series/observations?series_id=${FED_FUNDS_RATE_SERIES}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=1`,
+      );
+      const fedData = await fedResponse.json();
+      const latest = fedData.observations?.[0];
+      if (latest && latest.value && latest.value !== ".") {
+        fedRate = parseFloat(latest.value);
+      }
+    } catch (fedError) {
+      console.error(fedError);
+    }
+
+    let inflationRate = null;
+    try {
+      // Получаем последние 13 наблюдений (чтобы вычислить изменение за год)
+      const cpiUrl = `https://api.stlouisfed.org/fred/series/observations?series_id=${CPI_SERIES}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=13`;
+      const cpiResponse = await fetch(cpiUrl);
+      const cpiData = await cpiResponse.json();
+      const observations = cpiData.observations || [];
+
+      if (observations.length >= 2) {
+        const current = parseFloat(observations[0].value);
+        const yearAgo = parseFloat(
+          observations[12]?.value ||
+            observations[observations.length - 1].value,
+        );
+        if (current && yearAgo) {
+          inflationRate = ((current - yearAgo) / yearAgo) * 100;
+        }
+      }
+    } catch (cpiError) {
+      console.error("Ошибка получения инфляции:", cpiError);
+    }
+
     return {
       price,
       lastDividend: last?.amount || "нет данных",
       lastExDate: last?.ex_dividend_date || "нет данных",
+      fedRate,
+      inflationRate,
     };
   } catch (error) {
     console.error("Ошибка в getTLTData:", error);
