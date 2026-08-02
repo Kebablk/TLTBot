@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 // принимает решение
-=======
-// src/core/strategy.js
 import YahooFinance from "yahoo-finance2";
 
 const yahooFinance = new YahooFinance();
@@ -60,4 +57,3 @@ export async function getTLTData() {
     };
   }
 }
->>>>>>> 4e6f1954f0cc47d2ac4ababcb89b5cd8c8cd656f
