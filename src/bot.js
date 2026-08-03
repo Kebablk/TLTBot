@@ -2,8 +2,10 @@ import { Bot } from "grammy";
 import getData from "./replies/replies.js";
 import { startDailyTasks } from "./core/dataProvider.js";
 import { mainKeyboard } from "./keyboards/keyboards.js";
+import dotenv from "dotenv";
+dotenv.config();
 
-const TOKEN = "8583323595:AAGZ8NQ4YpFHPO_1o67czZqX1z4LftsSkbU";
+const TOKEN = process.env.BOT_TOKEN;
 const BOT = new Bot(TOKEN);
 
 BOT.command("start", async (ctx) => {
