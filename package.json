@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "dotenv": "^17.4.2",
+    "express": "^5.2.1",
     "grammy": "^1.45.1",
     "node-cron": "^4.6.0",
     "twelvedata": "^3.0.1",
