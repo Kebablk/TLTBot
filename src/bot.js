@@ -32,3 +32,4 @@ BOT.catch((err) => {
 startDailyTasks();
 BOT.start();
 console.log("BOT запущен");
+
