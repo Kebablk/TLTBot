@@ -1,5 +1,5 @@
 // действия бота (тг)
-import { getTLTData } from "../core/strategy.js";
+import { getTLTData } from "./repliesStrategy.js";
 
 export default async function getData(ctx) {
   try {
