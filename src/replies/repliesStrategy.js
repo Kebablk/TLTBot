@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const yahooFinance = new YahooFinance();
+
 const API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
 
 const FRED_API_KEY = process.env.FRED_API_KEY;
