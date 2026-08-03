@@ -3,6 +3,7 @@ import getData from "./replies/replies.js";
 import { startDailyTasks } from "./core/dataProvider.js";
 import { mainKeyboard } from "./keyboards/keyboards.js";
 import dotenv from "dotenv";
+import express from "express";
 dotenv.config();
 
 const TOKEN = process.env.BOT_TOKEN;
@@ -32,3 +33,11 @@ BOT.catch((err) => {
 startDailyTasks();
 BOT.start();
 console.log("BOT запущен");
+
+const app = express();
+app.get("/", (req, res) => res.send("Бот работает"));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Веб-сервер запущен на порту ${PORT} (для Render)`);
+});
