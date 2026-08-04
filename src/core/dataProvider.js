@@ -121,7 +121,7 @@ async function fetchMacroData() {
   } catch (err) {
     console.error("Ошибка получения макроданных:", err);
   }
-
+  
   return { fedRate, inflation, dividend };
 }
 
