@@ -10,7 +10,7 @@ dotenv.config();
 // === Конфигурация ===
 const FRED_API_KEY = process.env.FRED_API_KEY;
 const ALPHA_VANTAGE_API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
-const FED_FUNDS_RATE_SERIES = "FEDFUNDS"; // эффективная ставка
+const FED_FUNDS_RATE_SERIES = "DFEDTARU"; // эффективная ставка
 const CPI_SERIES = "CPIAUCSL"; // индекс потребительских цен
 
 // Путь к файлу данных (папка data в корне проекта)
@@ -76,7 +76,7 @@ async function getTLTPrice(type = "open") {
 async function fetchMacroData() {
   let fedRate = null;
   let inflation = null;
-  let dividend = null;
+  let coupon = null;
 
   try {
     // Ставка ФРС
@@ -111,18 +111,32 @@ async function fetchMacroData() {
     }
 
     // Дивиденд (годовой) – через Yahoo Finance
-    const summary = await yahooFinance.quoteSummary("TLT", {
-      modules: ["summaryDetail"],
+    const chartResult = await yahooFinance.chart("TLT", {
+      period1: "2024-01-01",
+      period2: new Date().toISOString().split("T")[0],
+      interval: "1d",
     });
-    const dividendRate = summary?.summaryDetail?.trailingAnnualDividendRate;
-    if (dividendRate) {
-      dividend = parseFloat(dividendRate);
-    }
+    const coupons = chartResult?.events?.dividends || [];
+    const history = coupons
+      .filter((item) => item.amount && item.amount > 0)
+      .map((item) => ({
+        ex_dividend_date:
+          item.date instanceof Date
+            ? item.date.toISOString().slice(0, 10)
+            : item.date,
+        amount: item.amount.toFixed(5),
+      }))
+      .sort(
+        (a, b) => new Date(b.ex_dividend_date) - new Date(a.ex_dividend_date),
+      );
+
+    const last = history.length > 0 ? history[0] : null;
+    coupon = last;
   } catch (err) {
     console.error("Ошибка получения макроданных:", err);
   }
-  
-  return { fedRate, inflation, dividend };
+
+  return { fedRate, inflation, coupon };
 }
 
 // === Загрузка всех записей из data.json ===
@@ -155,7 +169,7 @@ async function upsertTodayEntry(updates) {
       close: null,
       fedRate: null,
       inflation: null,
-      dividend: null,
+      coupon: null,
       ...updates,
     });
   } else {
@@ -180,7 +194,7 @@ async function saveOpenAndMacro() {
       open: openPrice,
       fedRate: macro.fedRate,
       inflation: macro.inflation,
-      dividend: macro.dividend,
+      coupon: macro.coupon,
     });
   } catch (err) {
     console.error("❌ Ошибка в saveOpenAndMacro:", err);
@@ -205,7 +219,7 @@ async function saveClose() {
 // === Экспорт функции запуска планировщика ===
 export function startDailyTasks() {
   // Задача на 20:10 (open + макро)
-  cron.schedule("10 20 * * *", saveOpenAndMacro, { timezone: "Europe/Moscow" });
+  cron.schedule("30 20 * * *", saveOpenAndMacro, { timezone: "Europe/Moscow" });
   // Задача на 23:00 (close)
   cron.schedule("0 23 * * *", saveClose, { timezone: "Europe/Moscow" });
   console.log(
