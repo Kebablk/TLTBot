@@ -1,6 +1,10 @@
 import { Bot, webhookCallback } from "grammy";
 import getData from "./replies/replies.js";
-import { startDailyTasks } from "./core/dataProvider.js";
+import {
+  saveClose,
+  saveOpenAndMacro,
+  startDailyTasks,
+} from "./core/dataProvider.js";
 import { mainKeyboard } from "./keyboards/keyboards.js";
 import dotenv from "dotenv";
 import express from "express";
@@ -33,6 +37,16 @@ BOT.hears("📊 Данные", async (ctx) => {
 });
 BOT.catch((err) => {
   console.error("Global error: ", err);
+});
+
+BOT.command("testopen", async (ctx) => {
+  await saveOpenAndMacro();
+  await ctx.reply("✅ Тестовая запись open выполнена, проверьте data.json");
+});
+
+BOT.command("testclose", async (ctx) => {
+  await saveClose();
+  await ctx.reply("✅ Тестовая запись close выполнена, проверьте data.json");
 });
 
 startDailyTasks();
