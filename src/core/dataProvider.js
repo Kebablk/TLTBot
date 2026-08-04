@@ -41,7 +41,7 @@ async function getTLTPrice(type = "open") {
     }
   } catch (e) {
     console.warn(`Yahoo chart для ${type} не сработал, пробуем quote`);
-  }
+  } 
 
   // Fallback: через quote (текущая цена)
   try {
@@ -213,5 +213,6 @@ export function startDailyTasks() {
   );
 }
 
+// Эксп ортируем для ручных тестов
 // === Экспорт функций для ручного тестирования ===
 export { saveOpenAndMacro, saveClose };
