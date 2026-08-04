@@ -12,10 +12,8 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const isRender = process.env.RENDER === "true";
-const DATA_DIR = isRender ? "/data" : path.join(__dirname, "..", "..", "data");
+const DATA_DIR = path.join(process.cwd(), "data");
 const DATA_FILE = path.join(DATA_DIR, "data.json");
-
 console.log("📁 DATA_FILE path:", DATA_FILE);
 
 // === Работа с файлом ===
