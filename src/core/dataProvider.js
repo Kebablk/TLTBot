@@ -4,7 +4,7 @@ import path from "path";
 import cron from "node-cron";
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
-import { getTLTData } from "./strategy.js"; // ← импортируем основную функцию
+import { getTLTData } from "../replies/repliesStrategy.js"; // ← импортируем основную функцию
 
 dotenv.config();
 
