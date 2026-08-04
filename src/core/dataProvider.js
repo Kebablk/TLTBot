@@ -1,3 +1,4 @@
+// src/core/dataProvider.js
 import YahooFinance from "yahoo-finance2";
 import fs from "fs/promises";
 import path from "path";
@@ -6,15 +7,17 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+// === Конфигурация ===
 const FRED_API_KEY = process.env.FRED_API_KEY;
 const ALPHA_VANTAGE_API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
-const FED_FUNDS_RATE_SERIES = "DFEDTARU";
-const CPI_SERIES = "CPIAUCSL";
+const FED_FUNDS_RATE_SERIES = "DFEDTARU"; // эффективная ставка
+const CPI_SERIES = "CPIAUCSL"; // индекс потребительских цен
 
 const DATA_FILE = path.resolve(process.cwd(), "data", "data.json");
 
 const yahooFinance = new YahooFinance();
 
+// === Вспомогательная функция: получить цену TLT (open или close) ===
 async function getTLTPrice(type = "open") {
   try {
     const today = new Date().toISOString().split("T")[0];
@@ -37,6 +40,7 @@ async function getTLTPrice(type = "open") {
     console.warn(`Yahoo chart для ${type} не сработал, пробуем quote`);
   }
 
+  // Fallback
   try {
     const quote = await yahooFinance.quote("TLT");
     if (type === "open" && quote.regularMarketOpen) {
@@ -49,6 +53,7 @@ async function getTLTPrice(type = "open") {
     console.warn(`Yahoo quote для ${type} не сработал`);
   }
 
+  // Alpha Vantage fallback
   if (ALPHA_VANTAGE_API_KEY) {
     try {
       const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=TLT&apikey=${ALPHA_VANTAGE_API_KEY}`;
@@ -64,10 +69,10 @@ async function getTLTPrice(type = "open") {
   return null;
 }
 
+// === Получение макропараметров (ставка ФРС, инфляция) ===
 async function fetchMacroData() {
   let fedRate = null;
   let inflation = null;
-  let coupon = null;
 
   try {
     if (FRED_API_KEY) {
@@ -79,9 +84,7 @@ async function fetchMacroData() {
       if (latest && latest.value && latest.value !== ".") {
         fedRate = parseFloat(latest.value);
       }
-    }
 
-    if (FRED_API_KEY) {
       const cpiRes = await fetch(
         `https://api.stlouisfed.org/fred/series/observations?series_id=${CPI_SERIES}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=13`,
       );
@@ -98,14 +101,23 @@ async function fetchMacroData() {
         }
       }
     }
+  } catch (err) {
+    console.error("Ошибка получения макроданных:", err);
+  }
 
+  return { fedRate, inflation };
+}
+
+// === Получение последнего дивиденда (из истории) ===
+async function fetchLastDividend() {
+  try {
     const chartResult = await yahooFinance.chart("TLT", {
       period1: "2024-01-01",
       period2: new Date().toISOString().split("T")[0],
       interval: "1d",
     });
-    const coupons = chartResult?.events?.dividends || [];
-    const history = coupons
+    const dividends = chartResult?.events?.dividends || [];
+    const history = dividends
       .filter((item) => item.amount && item.amount > 0)
       .map((item) => ({
         ex_dividend_date:
@@ -117,16 +129,14 @@ async function fetchMacroData() {
       .sort(
         (a, b) => new Date(b.ex_dividend_date) - new Date(a.ex_dividend_date),
       );
-
-    const last = history.length > 0 ? history[0] : null;
-    coupon = last;
+    return history.length > 0 ? history[0] : null;
   } catch (err) {
-    console.error("Ошибка получения макроданных:", err);
+    console.error("Ошибка получения дивидендов:", err);
+    return null;
   }
-
-  return { fedRate, inflation, coupon };
 }
 
+// === Работа с файлом ===
 async function loadData() {
   try {
     const content = await fs.readFile(DATA_FILE, "utf-8");
@@ -153,7 +163,7 @@ async function upsertTodayEntry(updates) {
       close: null,
       fedRate: null,
       inflation: null,
-      coupon: null,
+      dividend: null,
       ...updates,
     });
   } else {
@@ -164,26 +174,31 @@ async function upsertTodayEntry(updates) {
   console.log(`✅ Запись за ${today} обновлена:`, updates);
 }
 
+// === Задача в 20:30 – записать open и макропараметры ===
 async function saveOpenAndMacro() {
-  console.log("⏰ 20:10 – запись open и макроданных");
+  console.log("⏰ 20:30 – запись open и макроданных");
   try {
     const openPrice = await getTLTPrice("open");
     if (!openPrice) {
       console.warn("⚠️ Цена открытия не получена, пропускаем");
       return;
     }
+
     const macro = await fetchMacroData();
+    const lastDividend = await fetchLastDividend(); // теперь last определена
+
     await upsertTodayEntry({
       open: openPrice,
       fedRate: macro.fedRate,
       inflation: macro.inflation,
-      coupon: last?.amount ? parseFloat(last.amount) : null,
+      dividend: lastDividend ? parseFloat(lastDividend.amount) : null,
     });
   } catch (err) {
     console.error("❌ Ошибка в saveOpenAndMacro:", err);
   }
 }
 
+// === Задача в 23:00 – записать close ===
 async function saveClose() {
   console.log("⏰ 23:00 – запись close");
   try {
@@ -199,11 +214,12 @@ async function saveClose() {
 }
 
 export function startDailyTasks() {
-  cron.schedule("38 20 * * *", saveOpenAndMacro, { timezone: "Europe/Moscow" });
+  cron.schedule("43 20 * * *", saveOpenAndMacro, { timezone: "Europe/Moscow" });
   cron.schedule("0 23 * * *", saveClose, { timezone: "Europe/Moscow" });
   console.log(
-    "⏳ Планировщик запущен: сохранение open в 20:10, close в 23:00 (МСК)",
+    "⏳ Планировщик запущен: сохранение open в 20:30, close в 23:00 (МСК)",
   );
 }
 
+// Экспортируем для ручных тестов
 export { saveOpenAndMacro, saveClose };
