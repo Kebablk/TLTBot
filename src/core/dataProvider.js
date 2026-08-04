@@ -254,7 +254,7 @@ async function saveClose() {
 // === Экспорт функции запуска планировщика ===
 export function startDailyTasks() {
   // Время указано в UTC: 17:43 UTC = 20:43 МСК, 20:00 UTC = 23:00 МСК
-  cron.schedule("32 18 * * *", saveOpenAndMacro);
+  cron.schedule("40 18 * * *", saveOpenAndMacro);
   cron.schedule("0 20 * * *", saveClose);
   console.log(
     "⏳ Планировщик запущен: open в 17:43 UTC (20:43 МСК), close в 20:00 UTC (23:00 МСК)",
