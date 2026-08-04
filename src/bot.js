@@ -1,4 +1,4 @@
-import { Bot } from "grammy";
+import { Bot, webhookCallback } from "grammy";
 import getData from "./replies/replies.js";
 import { startDailyTasks } from "./core/dataProvider.js";
 import { mainKeyboard } from "./keyboards/keyboards.js";
