@@ -177,7 +177,7 @@ async function saveOpenAndMacro() {
       open: openPrice,
       fedRate: macro.fedRate,
       inflation: macro.inflation,
-      coupon: macro.coupon,
+      coupon: last?.amount ? parseFloat(last.amount) : null,
     });
   } catch (err) {
     console.error("❌ Ошибка в saveOpenAndMacro:", err);
@@ -199,7 +199,7 @@ async function saveClose() {
 }
 
 export function startDailyTasks() {
-  cron.schedule("30 20 * * *", saveOpenAndMacro, { timezone: "Europe/Moscow" });
+  cron.schedule("38 20 * * *", saveOpenAndMacro, { timezone: "Europe/Moscow" });
   cron.schedule("0 23 * * *", saveClose, { timezone: "Europe/Moscow" });
   console.log(
     "⏳ Планировщик запущен: сохранение open в 20:10, close в 23:00 (МСК)",
