@@ -205,7 +205,7 @@ async function saveClose() {
 // === Экспорт функции запуска планировщика ===
 export function startDailyTasks() {
   // Задача на 20:10 (open + макро)
-  cron.schedule("0 21 * * *", saveOpenAndMacro, { timezone: "Europe/Moscow" });
+  cron.schedule("11 21 * * *", saveOpenAndMacro, { timezone: "Europe/Moscow" });
   // Задача на 23:00 (close)
   cron.schedule("0 23 * * *", saveClose, { timezone: "Europe/Moscow" });
   console.log(
