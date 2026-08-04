@@ -1,4 +1,4 @@
-import { Bot } from "grammy";
+import { Bot, webhookCallback } from "grammy";
 import getData from "./replies/replies.js";
 import { startDailyTasks } from "./core/dataProvider.js";
 import { mainKeyboard } from "./keyboards/keyboards.js";
@@ -8,6 +8,11 @@ dotenv.config();
 
 const TOKEN = process.env.BOT_TOKEN;
 const BOT = new Bot(TOKEN);
+
+if (!TOKEN) {
+  console.error("❌ BOT_TOKEN не найден в .env");
+  process.exit(1);
+}
 
 BOT.command("start", async (ctx) => {
   await ctx.reply(
@@ -31,13 +36,36 @@ BOT.catch((err) => {
 });
 
 startDailyTasks();
-BOT.start();
-console.log("BOT запущен");
 
 const app = express();
-app.get("/", (req, res) => res.send("Бот работает"));
+
+app.get("/health", (req, res) => {
+  res.send("OK");
+});
+
+app.use(express.json());
+app.post(`/webhook/${TOKEN}`, webhookCallback(BOT, "express"));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Веб-сервер запущен на порту ${PORT} (для Render)`);
-});
+
+const isProduction = process.env.NODE_ENV === "production";
+
+if (isProduction) {
+  app.listen(PORT, async () => {
+    console.log(`🚀 Сервер запущен на порту ${PORT}`);
+
+    const webhookUrl = `${process.env.RENDER_EXTERNAL_URL}/webhook/${TOKEN}`;
+    try {
+      await BOT.api.setWebhook(webhookUrl, {
+        drop_pending_updates: true,
+      });
+      console.log(`✅ Webhook установлен: ${webhookUrl}`);
+    } catch (error) {
+      console.error("❌ Ошибка установки webhook:", error);
+    }
+  });
+} else {
+  console.log("🔄 Локальный режим: запуск с polling");
+  BOT.start();
+  console.log("✅ Бот запущен (polling)");
+}
