@@ -2,12 +2,13 @@ import YahooFinance from "yahoo-finance2";
 import fs from "fs/promises";
 import cron from "node-cron";
 import dotenv from "dotenv";
+import path from "path";
 dotenv.config();
 
 const FRED_API_KEY = process.env.FRED_API_KEY;
 const FED_FUNDS_RATE_SERIES = "DFEDTARU";
 const CPI_SERIES = "CPIAUCSL";
-const DATA_FILE = "./data.json";
+const DATA_FILE = path.resolve(process.cwd(), "data", "data.json");
 
 const yahooFinance = new YahooFinance();
 
