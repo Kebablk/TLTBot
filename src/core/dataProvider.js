@@ -1,4 +1,3 @@
-// src/core/dataProvider.js
 import YahooFinance from "yahoo-finance2";
 import fs from "fs/promises";
 import path from "path";
@@ -7,22 +6,17 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// === Конфигурация ===
 const FRED_API_KEY = process.env.FRED_API_KEY;
 const ALPHA_VANTAGE_API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
-const FED_FUNDS_RATE_SERIES = "DFEDTARU"; // эффективная ставка
-const CPI_SERIES = "CPIAUCSL"; // индекс потребительских цен
+const FED_FUNDS_RATE_SERIES = "DFEDTARU";
+const CPI_SERIES = "CPIAUCSL";
 
-// Путь к файлу данных (папка data в корне проекта)
 const DATA_FILE = path.resolve(process.cwd(), "data", "data.json");
 
 const yahooFinance = new YahooFinance();
 
-// === Вспомогательная функция: получить цену TLT (open или close) ===
 async function getTLTPrice(type = "open") {
-  // type: "open" или "close"
   try {
-    // Пытаемся получить свечу за сегодня через chart
     const today = new Date().toISOString().split("T")[0];
     const start = new Date(today);
     const end = new Date(start);
@@ -43,7 +37,6 @@ async function getTLTPrice(type = "open") {
     console.warn(`Yahoo chart для ${type} не сработал, пробуем quote`);
   }
 
-  // Fallback: через quote (текущая цена)
   try {
     const quote = await yahooFinance.quote("TLT");
     if (type === "open" && quote.regularMarketOpen) {
@@ -56,7 +49,6 @@ async function getTLTPrice(type = "open") {
     console.warn(`Yahoo quote для ${type} не сработал`);
   }
 
-  // Второй fallback: Alpha Vantage (если есть ключ)
   if (ALPHA_VANTAGE_API_KEY) {
     try {
       const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=TLT&apikey=${ALPHA_VANTAGE_API_KEY}`;
@@ -72,14 +64,12 @@ async function getTLTPrice(type = "open") {
   return null;
 }
 
-// === Получение макропараметров (ставка ФРС, инфляция, дивиденд) ===
 async function fetchMacroData() {
   let fedRate = null;
   let inflation = null;
   let coupon = null;
 
   try {
-    // Ставка ФРС
     if (FRED_API_KEY) {
       const fedRes = await fetch(
         `https://api.stlouisfed.org/fred/series/observations?series_id=${FED_FUNDS_RATE_SERIES}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=1`,
@@ -91,7 +81,6 @@ async function fetchMacroData() {
       }
     }
 
-    // Инфляция (годовой прирост CPI)
     if (FRED_API_KEY) {
       const cpiRes = await fetch(
         `https://api.stlouisfed.org/fred/series/observations?series_id=${CPI_SERIES}&api_key=${FRED_API_KEY}&file_type=json&sort_order=desc&limit=13`,
@@ -110,7 +99,6 @@ async function fetchMacroData() {
       }
     }
 
-    // Дивиденд (годовой) – через Yahoo Finance
     const chartResult = await yahooFinance.chart("TLT", {
       period1: "2024-01-01",
       period2: new Date().toISOString().split("T")[0],
@@ -139,7 +127,6 @@ async function fetchMacroData() {
   return { fedRate, inflation, coupon };
 }
 
-// === Загрузка всех записей из data.json ===
 async function loadData() {
   try {
     const content = await fs.readFile(DATA_FILE, "utf-8");
@@ -149,14 +136,11 @@ async function loadData() {
   }
 }
 
-// === Сохранение всего массива ===
 async function saveData(data) {
-  // Убедимся, что папка data существует
   await fs.mkdir(path.dirname(DATA_FILE), { recursive: true });
   await fs.writeFile(DATA_FILE, JSON.stringify(data, null, 2));
 }
 
-// === Добавление / обновление записи за сегодня ===
 async function upsertTodayEntry(updates) {
   const today = new Date().toISOString().split("T")[0];
   let data = await loadData();
@@ -180,7 +164,6 @@ async function upsertTodayEntry(updates) {
   console.log(`✅ Запись за ${today} обновлена:`, updates);
 }
 
-// === Задача в 20:10 – записать open и макропараметры ===
 async function saveOpenAndMacro() {
   console.log("⏰ 20:10 – запись open и макроданных");
   try {
@@ -201,7 +184,6 @@ async function saveOpenAndMacro() {
   }
 }
 
-// === Задача в 23:00 – записать close ===
 async function saveClose() {
   console.log("⏰ 23:00 – запись close");
   try {
@@ -216,16 +198,12 @@ async function saveClose() {
   }
 }
 
-// === Экспорт функции запуска планировщика ===
 export function startDailyTasks() {
-  // Задача на 20:10 (open + макро)
   cron.schedule("30 20 * * *", saveOpenAndMacro, { timezone: "Europe/Moscow" });
-  // Задача на 23:00 (close)
   cron.schedule("0 23 * * *", saveClose, { timezone: "Europe/Moscow" });
   console.log(
     "⏳ Планировщик запущен: сохранение open в 20:10, close в 23:00 (МСК)",
   );
 }
 
-// === Экспорт функций для ручного тестирования ===
 export { saveOpenAndMacro, saveClose };
