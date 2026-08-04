@@ -15,6 +15,7 @@ const __dirname = path.dirname(__filename);
 const DATA_DIR = path.join(process.cwd(), "data");
 const DATA_FILE = path.join(DATA_DIR, "data.json");
 console.log("📁 DATA_FILE path:", DATA_FILE);
+export { DATA_FILE };
 
 // === Работа с файлом ===
 async function loadData() {

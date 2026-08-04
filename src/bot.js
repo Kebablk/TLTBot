@@ -9,6 +9,7 @@ import { mainKeyboard } from "./keyboards/keyboards.js";
 import dotenv from "dotenv";
 import express from "express";
 import fs from "fs/promises";
+import { DATA_FILE } from "./core/dataProvider.js";
 import path from "path";
 dotenv.config();
 
@@ -53,8 +54,6 @@ BOT.command("testclose", async (ctx) => {
 
 BOT.command("readfile", async (ctx) => {
   try {
-    // Используем тот же путь, что и в dataProvider.js
-    const DATA_FILE = path.join(process.cwd(), "data", "data.json");
     const content = await fs.readFile(DATA_FILE, "utf-8");
     const data = JSON.parse(content);
     const last = data[data.length - 1];
@@ -67,8 +66,9 @@ BOT.command("readfile", async (ctx) => {
         `📈 Инфляция: ${last.inflation ?? "нет"}\n` +
         `💵 Дивиденд: ${last.dividend ?? "нет"}`,
     );
-  } catch {
-    await ctx.reply("❌ Файл не найден или пуст");
+  } catch (err) {
+    console.error("Ошибка чтения файла:", err);
+    await ctx.reply(`❌ Файл не найден или пуст. Путь: ${DATA_FILE}`);
   }
 });
 
