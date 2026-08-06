@@ -3,7 +3,7 @@ import getData from "./replies/replies.js";
 import { mainKeyboard } from "./keyboards/keyboards.js";
 import dotenv from "dotenv";
 import express from "express";
-import { startDailyTasks } from "./core/dataProvider.js";
+// import { startDailyTasks } from "./core/dataProvider.js";
 dotenv.config();
 
 const TOKEN = process.env.BOT_TOKEN;
