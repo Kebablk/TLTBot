@@ -1,16 +1,8 @@
 import { Bot, webhookCallback } from "grammy";
 import getData from "./replies/replies.js";
-import {
-  saveClose,
-  saveOpenAndMacro,
-  startDailyTasks,
-} from "./core/dataProvider.js";
 import { mainKeyboard } from "./keyboards/keyboards.js";
 import dotenv from "dotenv";
 import express from "express";
-import fs from "fs/promises";
-import { DATA_FILE } from "./core/dataProvider.js";
-import path from "path";
 dotenv.config();
 
 const TOKEN = process.env.BOT_TOKEN;
