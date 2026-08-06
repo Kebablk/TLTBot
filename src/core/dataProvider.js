@@ -1,7 +1,7 @@
 import cron from "node-cron";
 import dotenv from "dotenv";
 import { getTLTData } from "../replies/repliesStrategy.js";
-import prismaClient from "../lib/prismaClient.js";
+import prisma from "../lib/prismaClient.js";
 
 dotenv.config();
 
@@ -63,7 +63,7 @@ export async function saveClose() {
 }
 
 export function startDailyTasks() {
-  cron.schedule("1 21 * * *", saveOpen);
+  cron.schedule("4 21 * * *", saveOpen);
   cron.schedule("0 20 * * *", saveClose);
   console.log(
     "⏳ Планировщик запущен: open в 17:43 UTC (20:43 МСК), close в 20:00 UTC (23:00 МСК)",
