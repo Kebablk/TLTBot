@@ -1,7 +1,7 @@
 import cron from "node-cron";
 import dotenv from "dotenv";
 import { getTLTData } from "../replies/repliesStrategy.js";
-import prisma from "../lib/prismaClient.js";
+import prismaClient from "../lib/prismaClient.js";
 
 dotenv.config();
 
