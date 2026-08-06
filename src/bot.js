@@ -34,8 +34,6 @@ BOT.catch((err) => {
   console.error("Global error: ", err);
 });
 
-startDailyTasks();
-
 const app = express();
 
 app.get("/health", (req, res) => {
