@@ -42,36 +42,6 @@ BOT.catch((err) => {
   console.error("Global error: ", err);
 });
 
-BOT.command("testopen", async (ctx) => {
-  await saveOpenAndMacro();
-  await ctx.reply("✅ Тестовая запись open выполнена, проверьте data.json");
-});
-
-BOT.command("testclose", async (ctx) => {
-  await saveClose();
-  await ctx.reply("✅ Тестовая запись close выполнена, проверьте data.json");
-});
-
-BOT.command("readfile", async (ctx) => {
-  try {
-    const content = await fs.readFile(DATA_FILE, "utf-8");
-    const data = JSON.parse(content);
-    const last = data[data.length - 1];
-    await ctx.reply(
-      `📄 **Последняя запись из data.json:**\n` +
-        `📅 Дата: ${last.date}\n` +
-        `💰 Открытие: $${last.open ?? "нет"}\n` +
-        `💵 Закрытие: $${last.close ?? "нет"}\n` +
-        `🏦 Ставка ФРС: ${last.fedRate ?? "нет"}\n` +
-        `📈 Инфляция: ${last.inflation ?? "нет"}\n` +
-        `💵 Дивиденд: ${last.dividend ?? "нет"}`,
-    );
-  } catch (err) {
-    console.error("Ошибка чтения файла:", err);
-    await ctx.reply(`❌ Файл не найден или пуст. Путь: ${DATA_FILE}`);
-  }
-});
-
 startDailyTasks();
 
 const app = express();
