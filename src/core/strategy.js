@@ -1,5 +1,6 @@
 // принимает решение
-let TLT = 182.28
+let openTLT = 182.28
+let closeTLT = 183.20
 let devidend = 0.318
 let FRS = 3.75
 let inflation = 3.5
