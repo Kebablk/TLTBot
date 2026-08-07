@@ -24,6 +24,7 @@ export async function saveOpen() {
         dividend: parseFloat(data.lastDividend) || null,
       },
       create: {
+        date: today,
         open: data.price,
         fedRate: data.fedRate,
         inflation: data.inflationRate,
