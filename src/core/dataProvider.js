@@ -33,7 +33,7 @@ export async function saveOpen() {
 
     console.log(`✅ Запись за ${today} обновлена (open, макро)`);
   } catch (error) {
-    console.error("❌ Ошибка в saveOpenAndMacro:", err);
+    console.error("❌ Ошибка в saveOpenAndMacro:", error);
   }
 }
 
@@ -58,12 +58,12 @@ export async function saveClose() {
 
     console.log(`✅ Запись за ${today} обновлена (close)`);
   } catch (error) {
-    console.error(error);
+    console.error("❌ Ошибка в saveClose:", error);
   }
 }
 
 export function startDailyTasks() {
-  cron.schedule("59 17 * * *", saveOpen);
+  cron.schedule("02 18 * * *", saveOpen);
   cron.schedule("0 20 * * *", saveClose);
   console.log(
     "⏳ Планировщик запущен: open в 17:43 UTC (20:43 МСК), close в 20:00 UTC (23:00 МСК)",
