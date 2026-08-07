@@ -70,3 +70,9 @@ export function startDailyTasks() {
     "⏳ Планировщик запущен: open в 17:43 UTC (20:43 МСК), close в 20:00 UTC (23:00 МСК)",
   );
 }
+
+export async function getAllData() {
+  const allRecords = await prisma.dailyData.findMany();
+  console.log(allRecords);
+  return allRecords;
+}
