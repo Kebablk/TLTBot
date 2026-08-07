@@ -1,4 +1,4 @@
-import { PrismaClient } from "../generated/prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 
@@ -7,6 +7,6 @@ const pool = new Pool({
 });
 
 const adapter = new PrismaPg(pool);
-const prismaClient = new PrismaClient({ adapter });
+const prisma = new PrismaClient({ adapter });
 
-export default prismaClient;
+export default prisma;

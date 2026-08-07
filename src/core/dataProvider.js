@@ -1,7 +1,7 @@
 import cron from "node-cron";
 import dotenv from "dotenv";
 import { getTLTData } from "../replies/repliesStrategy.js";
-import prismaClient from "../lib/prismaClient.js";
+import prisma from "../lib/prismaClient.js";
 
 dotenv.config();
 
@@ -15,7 +15,7 @@ export async function saveOpen() {
 
     const today = new Date().toISOString().split("T")[0];
 
-    await prismaClient.dailyData.upsert({
+    await prisma.dailyData.upsert({
       where: { date: today },
       update: {
         open: data.price,
@@ -47,7 +47,7 @@ export async function saveClose() {
 
     const today = new Date().toISOString().split("T")[0];
 
-    await prismaClient.dailyData.upsert({
+    await prisma.dailyData.upsert({
       where: { date: today },
       update: { close: data.price },
       create: {
