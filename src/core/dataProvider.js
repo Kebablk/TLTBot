@@ -24,6 +24,7 @@ export async function saveOpen() {
         dividend: parseFloat(data.lastDividend) || null,
       },
       create: {
+        date: today,
         open: data.price,
         fedRate: data.fedRate,
         inflation: data.inflationRate,
@@ -63,7 +64,7 @@ export async function saveClose() {
 }
 
 export function startDailyTasks() {
-  cron.schedule("04 18 * * *", saveOpen);
+  cron.schedule("30 13 * * *", saveOpen);
   cron.schedule("0 20 * * *", saveClose);
   console.log(
     "⏳ Планировщик запущен: open в 17:43 UTC (20:43 МСК), close в 20:00 UTC (23:00 МСК)",

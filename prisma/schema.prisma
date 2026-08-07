@@ -8,14 +8,19 @@ datasource db {
 }
 
 model DailyData {
-  id        String  @id @default(uuid())
-  date      String  @unique
+  id        String   @id @default(uuid())
+  date      String   @unique
   open      Float?
   close     Float?
   fedRate   Float?
   inflation Float?
   dividend  Float?
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+<<<<<<< HEAD
 }
+=======
+
+  @@index([date])
+}
+>>>>>>> d881fae01a93b463630c544699856c2219e8a529
