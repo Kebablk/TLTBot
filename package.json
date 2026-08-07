@@ -16,6 +16,7 @@
     "express": "^5.2.1",
     "grammy": "^1.45.1",
     "node-cron": "^4.6.0",
+    "pg": "^8.22.0",
     "prisma": "^7.9.1",
     "twelvedata": "^3.0.1",
     "yahoo-finance2": "^4.0.0"
