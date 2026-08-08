@@ -5,11 +5,11 @@ const lastData = await prisma.dailyData.findFirst({
   orderBy: { date: "desc" },
 });
 
-const openTLT = lastData?.openTLT ?? 0;
-const closeTLT = lastData?.closeTLT ?? 0;
-const devidend = lastData?.devidend ?? 0;
-const inflation = lastData?.inflation ?? 0;
-const fedRate = lastData?.fedRate ?? 0;
+export const openTLT = lastData?.openTLT ?? 0;
+export const closeTLT = lastData?.closeTLT ?? 0;
+export const devidend = lastData?.devidend ?? 0;
+export const inflation = lastData?.inflation ?? 0;
+export const fedRate = lastData?.fedRate ?? 0;
 
 let nominalYield = 0;
 let realYield = 0;
