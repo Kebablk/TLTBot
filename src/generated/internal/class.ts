@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.9.1",
   "engineVersion": "e922089b7d7502aff4249d5da3420f6fa55fc6ad",
   "activeProvider": "postgresql",
-  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../src/generated\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel DailyData {\n  id        String   @id @default(uuid())\n  date      String   @unique\n  open      Float?\n  close     Float?\n  fedRate   Float?\n  inflation Float?\n  dividend  Float?\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@index([date])\n}\n",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../src/generated\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel DailyData {\n  id        String   @id @default(uuid())\n  date      String   @unique\n  open      Float?\n  close     Float?\n  fedRate   Float?\n  inflation Float?\n  dividend  Float?\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
