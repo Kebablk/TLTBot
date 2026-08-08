@@ -86,8 +86,8 @@ export async function getFirstData() {
 
     let nominalYield = 0;
     let realYield = 0;
-    if (closeTLT !== 0 && dividend !== 0)
-      nominalYield = (dividend / closeTLT) * 12 * 100;
+    if (closeTLT !== 0 && devidend !== 0)
+      nominalYield = (devidend / closeTLT) * 12 * 100;
     if (nominalYield !== 0 && inflation !== 0)
       realYield = ((1 + nominalYield) / (1 + inflation / 100) - 1) * 100;
 
