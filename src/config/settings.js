@@ -5,14 +5,17 @@ const lastData = await prisma.dailyData.findFirst({
   orderBy: { date: "desc" },
 });
 
-if (lastData) {
-  const openTLT = lastData.openTLT;
-  const closeTLT = lastData.closeTLT;
-  const devidend = lastData.devidend;
-  const inflation = lastData.inflation;
-  const fedRate = lastData.fedRate;
+const openTLT = lastData?.openTLT ?? 0;
+const closeTLT = lastData?.closeTLT ?? 0;
+const devidend = lastData?.devidend ?? 0;
+const inflation = lastData?.inflation ?? 0;
+const fedRate = lastData?.fedRate ?? 0;
 
-  export const nominalYield = (devidend / closeTLT) * 12 * 100; // номинальная доходность
-  export const realYeiel =
-    ((1 + nominalYield) / (1 + inflation / 100) - 1) * 100; // реальная доходность
-}
+let nominalYield = 0;
+let realYield = 0;
+if (closeTLT !== 0 && dividend !== 0)
+  nominalYield = (dividend / closeTLT) * 12 * 100;
+if (nominalYield !== 0 && inflation !== 0)
+  realYield = ((1 + nominalYield) / (1 + inflation / 100) - 1) * 100;
+
+export { nominalYield, realYield };
