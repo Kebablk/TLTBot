@@ -1,9 +1,10 @@
 // принимает решение
-let openTLT = 182.28
-let closeTLT = 183.20
-let devidend = 0.318
-let fedRate = 3.75
-let inflation = 3.5
+import { openTLT } from "../config/settings"
+import { closeTLT } from "../config/settings"
+import { fedRate } from "../config/settings"
+import { inflation } from "../config/settings"
+import { devidend } from "../config/settings"
+
 
 const buy = () => {
   console.log(`покупаем облигации, потому что реальная доходность TLT ${realYield} > 0 и цена TLT ${TLT} < 85 и ставка ФРС ${fedRate} > 3.5 (высокая)`)
@@ -15,7 +16,7 @@ const stay = () => {
   console.log('ничего не делаем')
 }
 
-let nominalYield = (devidend / TLT * 12 * 100)
+let nominalYield = (devidend / closeTLT * 12 * 100)
 let realYield = ((1 + nominalYield / 100) / (1 + inflation / 100) - 1) * 100
 
 if (realYield > 0 && TLT < 85 && FRS > 3.5) {
