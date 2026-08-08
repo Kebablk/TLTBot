@@ -2,7 +2,6 @@ import cron from "node-cron";
 import dotenv from "dotenv";
 import { getTLTData } from "../replies/repliesStrategy.js";
 import prisma from "../lib/prismaClient.js";
-import { getFirstData } from "../config/settings.js";
 
 dotenv.config();
 
@@ -14,9 +13,6 @@ export async function saveOpen() {
       return;
     }
 
-    const yields = await getFirstData();
-    console.log(yields);
-
     const today = new Date().toISOString().split("T")[0];
 
     await prisma.dailyData.upsert({
@@ -26,8 +22,6 @@ export async function saveOpen() {
         fedRate: data.fedRate,
         inflation: data.inflationRate,
         dividend: parseFloat(data.lastDividend) || null,
-        nominalYield: yields.nominalYield,
-        realYield: yields.realYield,
       },
       create: {
         date: today,
@@ -35,8 +29,6 @@ export async function saveOpen() {
         fedRate: data.fedRate,
         inflation: data.inflationRate,
         dividend: parseFloat(data.lastDividend) || null,
-        nominalYield: yields.nominalYield,
-        realYield: yields.realYield,
       },
     });
 
@@ -54,23 +46,14 @@ export async function saveClose() {
       return;
     }
 
-    const yields = await getFirstData();
-    console.log(yields);
-
     const today = new Date().toISOString().split("T")[0];
 
     await prisma.dailyData.upsert({
       where: { date: today },
-      update: {
-        close: data.price,
-        nominalYield: yields.nominalYield,
-        realYield: yields.realYield,
-      },
+      update: { close: data.price },
       create: {
         date: today,
         close: data.price,
-        nominalYield: yields.nominalYield,
-        realYield: yields.realYield,
       },
     });
 
@@ -81,7 +64,7 @@ export async function saveClose() {
 }
 
 export function startDailyTasks() {
-  cron.schedule("30 21 * * *", saveOpen);
+  cron.schedule("30 13 * * *", saveOpen);
   cron.schedule("0 20 * * *", saveClose);
   console.log(
     "⏳ Планировщик запущен: open в 17:43 UTC (20:43 МСК), close в 20:00 UTC (23:00 МСК)",
