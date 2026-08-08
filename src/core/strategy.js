@@ -5,7 +5,6 @@ import { fedRate } from "../config/settings"
 import { inflation } from "../config/settings"
 import { devidend } from "../config/settings"
 
-
 const buy = () => {
   console.log(`покупаем облигации, потому что реальная доходность TLT ${realYield} > 0 и цена TLT ${TLT} < 85 и ставка ФРС ${fedRate} > 3.5 (высокая)`)
 }
