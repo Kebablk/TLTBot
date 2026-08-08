@@ -4,7 +4,7 @@ import { mainKeyboard } from "./keyboards/keyboards.js";
 import dotenv from "dotenv";
 import express from "express";
 import { startDailyTasks } from "./core/dataProvider.js";
-import { nominalYield, realYeiel } from "./config/settings.js";
+import { nominalYield, realYield } from "./config/settings.js";
 dotenv.config();
 
 const TOKEN = process.env.BOT_TOKEN;
@@ -50,7 +50,7 @@ const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === "production";
 
 startDailyTasks();
-console.log(nominalYield, realYeiel);
+console.log(nominalYield, realYield);
 
 if (isProduction) {
   app.listen(PORT, async () => {
