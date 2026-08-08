@@ -1,4 +1,4 @@
-import { getAllData } from "../core/dataProvider";
+import { getAllData } from "../core/dataProvider.js";
 
 const lastData = getAllData()[0];
 
