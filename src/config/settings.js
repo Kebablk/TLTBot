@@ -1,9 +1,12 @@
-// набор правил
-let openTLT = 182.28
-let closeTLT = 183.20
-let devidend = 0.318
-let inflation = 3.5
-let fedRate = 3.75
+import { getAllData } from "../core/dataProvider";
 
-const nominalYield = (devidend / closeTLT) * 12 * 100 // номинальная доходность
-const realYeiel = ((1 + nominalYield) / (1 + inflation / 100) - 1) * 100 // реальная доходность
+const lastData = getAllData()[0];
+
+const openTLT = lastData.openTLT;
+const closeTLT = lastData.closeTLT;
+const devidend = lastData.devidend;
+const inflation = lastData.inflation;
+const fedRate = lastData.fedRate;
+
+export const nominalYield = (devidend / closeTLT) * 12 * 100; // номинальная доходность
+export const realYeiel = ((1 + nominalYield) / (1 + inflation / 100) - 1) * 100; // реальная доходность
