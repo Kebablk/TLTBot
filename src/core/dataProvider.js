@@ -77,19 +77,24 @@ export async function getFirstData() {
   });
   console.log("lastData: ", lastData);
 
-  const openTLT = lastData?.openTLT ?? 0;
-  const closeTLT = lastData?.closeTLT ?? 0;
-  const devidend = lastData?.devidend ?? 0;
-  const inflation = lastData?.inflation ?? 0;
-  const fedRate = lastData?.fedRate ?? 0;
+  if (lastData) {
+    const openTLT = lastData.openTLT;
+    const closeTLT = lastData.closeTLT;
+    const devidend = lastData.devidend;
+    const inflation = lastData.inflation;
+    const fedRate = lastData.fedRate;
 
-  let nominalYield = 0;
-  let realYield = 0;
-  if (closeTLT !== 0 && dividend !== 0)
-    nominalYield = (dividend / closeTLT) * 12 * 100;
-  if (nominalYield !== 0 && inflation !== 0)
-    realYield = ((1 + nominalYield) / (1 + inflation / 100) - 1) * 100;
+    let nominalYield = 0;
+    let realYield = 0;
+    if (closeTLT !== 0 && dividend !== 0)
+      nominalYield = (dividend / closeTLT) * 12 * 100;
+    if (nominalYield !== 0 && inflation !== 0)
+      realYield = ((1 + nominalYield) / (1 + inflation / 100) - 1) * 100;
 
-  console.log(nominalYield, realYield);
-  return { nominalYield, realYield };
+    console.log(nominalYield, realYield);
+    return { nominalYield, realYield };
+  } else {
+    console.log("Неудача");
+    return;
+  }
 }
