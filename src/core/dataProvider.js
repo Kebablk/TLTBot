@@ -78,17 +78,17 @@ export async function getFirstData() {
   console.log("lastData: ", lastData);
 
   if (lastData) {
-    const openTLT = lastData.openTLT;
-    const closeTLT = lastData.closeTLT;
-    const devidend = lastData.devidend;
+    const openTLT = lastData.open;
+    const closeTLT = lastData.close;
+    const dividend = lastData.dividend;
     const inflation = lastData.inflation;
     const fedRate = lastData.fedRate;
 
     let nominalYield = 0;
     let realYield = 0;
-    if (closeTLT !== 0 && devidend !== 0)
-      nominalYield = (devidend / closeTLT) * 12 * 100;
-    if (nominalYield !== 0 && inflation !== 0)
+    if (closeTLT && closeTLT !== 0 && dividend && dividend !== 0)
+      nominalYield = (dividend / closeTLT) * 12 * 100;
+    if (nominalYield !== 0 && inflation && inflation !== 0)
       realYield = ((1 + nominalYield) / (1 + inflation / 100) - 1) * 100;
 
     console.log(nominalYield, realYield);
