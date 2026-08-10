@@ -99,8 +99,8 @@ export async function saveClose() {
 }
 
 export function startDailyTasks() {
-  cron.schedule("30 13 * * *", saveOpen);
-  cron.schedule("8 20 * * *", saveClose);
+  cron.schedule("11 20 * * *", saveOpen);
+  cron.schedule("12 20 * * *", saveClose);
   console.log(
     "⏳ Планировщик запущен: open в 17:43 UTC (20:43 МСК), close в 20:00 UTC (23:00 МСК)",
   );
