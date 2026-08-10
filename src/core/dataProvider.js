@@ -2,6 +2,7 @@ import cron from "node-cron";
 import dotenv from "dotenv";
 import { getTLTData } from "../replies/repliesStrategy.js";
 import prisma from "../lib/prismaClient.js";
+import { calculateYields } from "../config/settings.js";
 
 dotenv.config();
 
@@ -48,12 +49,32 @@ export async function saveClose() {
 
     const today = new Date().toISOString().split("T")[0];
 
+    const existing = await prisma.dailyData.findUnique({
+      where: { date: today },
+      select: { dividend: true, inflation: true },
+    });
+
+    const dividend = existing?.dividend ?? null;
+    const inflation = existing?.inflation ?? null;
+
+    const { nominalYield, realYield } = calculateYields(
+      data.price,
+      dividend,
+      inflation,
+    );
+
     await prisma.dailyData.upsert({
       where: { date: today },
-      update: { close: data.price },
+      update: {
+        close: data.price,
+        nominalYield: nominalYield,
+        realYield: realYield,
+      },
       create: {
         date: today,
         close: data.price,
+        nominalYield: nominalYield,
+        realYield: realYield,
       },
     });
 
