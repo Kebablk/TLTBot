@@ -2,23 +2,9 @@ import cron from "node-cron";
 import dotenv from "dotenv";
 import { getTLTData } from "../replies/repliesStrategy.js";
 import prisma from "../lib/prismaClient.js";
+import { calculateYields } from "../config/settings.js";
 
 dotenv.config();
-
-function calculateYields(price, dividend, inflation) {
-  if (!price || price === 0 || !dividend || dividend === 0) {
-    return { nominalYield: null, realYield: null };
-  }
-
-  const nominalYield = (dividend / price) * 12 * 100;
-
-  let realYield = null;
-  if (inflation && inflation !== 0) {
-    realYield = ((1 + nominalYield / 100) / (1 + inflation / 100) - 1) * 100;
-  }
-
-  return { nominalYield, realYield };
-}
 
 export async function saveOpen() {
   try {
@@ -99,8 +85,8 @@ export async function saveClose() {
 }
 
 export function startDailyTasks() {
-  cron.schedule("11 20 * * *", saveOpen);
-  cron.schedule("12 20 * * *", saveClose);
+  cron.schedule("30 13 * * *", saveOpen);
+  cron.schedule("0 20 * * *", saveClose);
   console.log(
     "⏳ Планировщик запущен: open в 17:43 UTC (20:43 МСК), close в 20:00 UTC (23:00 МСК)",
   );
