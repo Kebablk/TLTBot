@@ -49,6 +49,7 @@ const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === "production";
 
 startDailyTasks();
+setTwoYearsData();
 
 const SELF_PING_INTERVAL = 10 * 60 * 1000;
 setInterval(() => {
