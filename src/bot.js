@@ -1,5 +1,6 @@
 import { Bot, webhookCallback } from "grammy";
 import getData from "./replies/replies.js";
+import { getAllHistory } from "./replies/repliesStrategy.js";
 import { mainKeyboard } from "./keyboards/keyboards.js";
 import dotenv from "dotenv";
 import express from "express";
@@ -48,12 +49,15 @@ const PORT = process.env.PORT || 3000;
 
 const isProduction = process.env.NODE_ENV === "production";
 
+const dataHistory = getAllHistory();
 startDailyTasks();
 
 const SELF_PING_INTERVAL = 10 * 60 * 1000;
 setInterval(() => {
-  fetch(`https://${process.env.RENDER_EXTERNAL_URL}/health`).catch(() => {});
-  console.log("Пинг сработал");
+  const url = `${process.env.RENDER_EXTERNAL_URL}/health`;
+  fetch(url)
+    .then(() => console.log("✅ Пинг успешен"))
+    .catch(() => console.log("❌ Пинг не удался"));
 }, SELF_PING_INTERVAL);
 
 if (isProduction) {

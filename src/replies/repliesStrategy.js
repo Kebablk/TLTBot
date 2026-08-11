@@ -1,4 +1,3 @@
-// src/core/strategy.js (или repliesStrategy.js)
 import YahooFinance from "yahoo-finance2";
 import dotenv from "dotenv";
 dotenv.config();
@@ -10,9 +9,7 @@ const FRED_API_KEY = process.env.FRED_API_KEY;
 const FED_FUNDS_RATE_SERIES = "DFEDTARU";
 const CPI_SERIES = "CPIAUCSL";
 
-// === Вспомогательная функция: получить цену TLT с несколькими попытками ===
 async function getTLTPrice() {
-  // 1. Пробуем Yahoo Finance (самый стабильный, не требует ключа)
   try {
     const quote = await yahooFinance.quote("TLT");
     if (quote?.regularMarketPrice) {
@@ -22,7 +19,6 @@ async function getTLTPrice() {
     console.warn("Yahoo Finance quote не сработал, пробуем Alpha Vantage");
   }
 
-  // 2. Пробуем Alpha Vantage (если есть ключ)
   if (API_KEY) {
     try {
       const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=TLT&apikey=${API_KEY}`;
@@ -35,11 +31,10 @@ async function getTLTPrice() {
     }
   }
 
-  // 3. Самый крайний случай — берём вчерашнее закрытие через chart
   try {
     const today = new Date();
     const start = new Date(today);
-    start.setDate(start.getDate() - 2); // запас на случай выходных
+    start.setDate(start.getDate() - 2);
     const chart = await yahooFinance.chart("TLT", {
       period1: start,
       interval: "1d",
@@ -55,15 +50,13 @@ async function getTLTPrice() {
     console.warn("Не удалось получить цену даже через chart");
   }
 
-  return null; // совсем ничего не вышло
+  return null;
 }
 
-// === Основная функция ===
 export async function getTLTData() {
   try {
     const price = await getTLTPrice();
 
-    // Дивиденды (оставляем как есть)
     const chartResult = await yahooFinance.chart("TLT", {
       period1: "2024-01-01",
       period2: new Date().toISOString().split("T")[0],
@@ -85,7 +78,6 @@ export async function getTLTData() {
 
     const last = history.length > 0 ? history[0] : null;
 
-    // Макро (ставка, инфляция)
     let fedRate = null;
     try {
       const fedRes = await fetch(
@@ -121,7 +113,7 @@ export async function getTLTData() {
     }
 
     return {
-      price: price ?? 0, // если null → 0
+      price: price ?? 0,
       lastDividend: last?.amount || "нет данных",
       lastExDate: last?.ex_dividend_date || "нет данных",
       fedRate,
@@ -137,4 +129,92 @@ export async function getTLTData() {
       inflationRate: null,
     };
   }
+}
+
+async function getTLTHistory() {
+  const now = new Date();
+  const twoYearsAgo = new Date();
+  twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+
+  const result = await yahooFinance.historical("TLT", {
+    period1: twoYearsAgo,
+    period2: now,
+    interval: "1d",
+  });
+
+  return result.map((item) => ({
+    date: item.date.toISOString().split("T")[0],
+    open: item.open,
+    close: item.close,
+  }));
+}
+
+async function getTLTDividends() {
+  const now = new Date();
+  const twoYearsAgo = new Date();
+  twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+
+  const result = await yahooFinance.historical("TLT", {
+    period1: twoYearsAgo,
+    period2: now,
+    interval: "1d",
+    events: "dividends",
+  });
+
+  return result.map((item) => ({
+    date: item.date.toISOString().split("T")[0],
+    dividend: item.dividend,
+  }));
+}
+
+async function getFedRateHistory() {
+  const twoYearsAgo = new Date();
+  twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+  const startDate = twoYearsAgo.toISOString().split("T")[0];
+
+  const url = `https://api.stlouisfed.org/fred/series/observations?series_id=FEDFUNDS&api_key=${FRED_API_KEY}&file_type=json&observation_start=${startDate}&sort_order=asc`;
+
+  const res = await fetch(url);
+  const data = await res.json();
+  return data.observations.map((item) => ({
+    date: item.date,
+    fedRate: parseFloat(item.value),
+  }));
+}
+
+async function getInflationHistory() {
+  const twoYearsAgo = new Date();
+  twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+  const startDate = twoYearsAgo.toISOString().split("T")[0];
+
+  const url = `https://api.stlouisfed.org/fred/series/observations?series_id=CPIAUCSL&api_key=${FRED_API_KEY}&file_type=json&observation_start=${startDate}&sort_order=asc`;
+
+  const res = await fetch(url);
+  const data = await res.json();
+  return data.observations.map((item) => ({
+    date: item.date,
+    cpi: parseFloat(item.value),
+  }));
+}
+
+export async function getAllHistory() {
+  const [prices, dividends, fedRates, cpiData] = await Promise.all([
+    getTLTHistory(),
+    getTLTDividends(),
+    getFedRateHistory(),
+    getInflationHistory(),
+  ]);
+
+  const fedMap = Object.fromEntries(fedRates.map((d) => [d.date, d.fedRate]));
+  const cpiMap = Object.fromEntries(cpiData.map((d) => [d.date, d.cpi]));
+  const divMap = Object.fromEntries(dividends.map((d) => [d.date, d.dividend]));
+
+  return prices.map((price) => ({
+    date: price.date,
+    open: price.open,
+    close: price.close,
+    dividend: divMap[price.date] || null,
+    fedRate: fedMap[price.date] || null,
+    cpi: cpiMap[price.date] || null,
+  }));
 }
