@@ -53,6 +53,7 @@ startDailyTasks();
 const SELF_PING_INTERVAL = 10 * 60 * 1000;
 setInterval(() => {
   fetch(`https://${process.env.RENDER_EXTERNAL_URL}/health`).catch(() => {});
+  console.log("Пинг сработал");
 }, SELF_PING_INTERVAL);
 
 if (isProduction) {
