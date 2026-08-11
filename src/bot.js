@@ -42,12 +42,7 @@ BOT.hears("📊 Данные", async (ctx) => {
   });
 
   await ctx.reply(
-    `Данные за сейчас:\n${reply}\n\n
-    Данные последней записи БД:\n
-    Открытие TLT: ${lastRecord.open}\n
-    Закрытие TLT: ${lastRecord.close}\n
-    Ставка ФРС: ${lastRecord.fedRate}\n
-    Уровень инфляции США: ${lastRecord.inflation}`,
+    `Данные за сейчас:\n\n${reply}\n\nДанные последней записи БД:\n\nОткрытие TLT: ${lastRecord.open}\nЗакрытие TLT: ${lastRecord.close}\nСтавка ФРС: ${lastRecord.fedRate}\nУровень инфляции США: ${lastRecord.inflation}`,
     {
       reply_markup: mainKeyboard,
     },
