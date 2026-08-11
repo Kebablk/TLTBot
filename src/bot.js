@@ -4,6 +4,7 @@ import { mainKeyboard } from "./keyboards/keyboards.js";
 import dotenv from "dotenv";
 import express from "express";
 import { startDailyTasks, setTwoYearsData } from "./core/dataProvider.js";
+import prisma from "./lib/prismaClient.js";
 dotenv.config();
 
 const TOKEN = process.env.BOT_TOKEN;
@@ -29,7 +30,28 @@ BOT.command("data", async (ctx) => {
 });
 BOT.hears("📊 Данные", async (ctx) => {
   const reply = await getData();
-  await ctx.reply(reply, { reply_markup: mainKeyboard });
+  const lastRecord = await prisma.dailyData.findFirst({
+    orderBy: { date: "desc" },
+    select: {
+      open: true,
+      close: true,
+      fedRate: true,
+      inflation: true,
+      dividend: true,
+    },
+  });
+
+  await ctx.reply(
+    `Данные за сейчас:\n${reply}\n\n
+    Данные последней записи БД:\n
+    Открытие TLT: ${lastRecord.open}\n
+    Закрытие TLT: ${lastRecord.close}\n
+    Ставка ФРС: ${lastRecord.fedRate}\n
+    Уровень инфляции США: ${lastRecord.inflation}`,
+    {
+      reply_markup: mainKeyboard,
+    },
+  );
 });
 BOT.catch((err) => {
   console.error("Global error: ", err);
