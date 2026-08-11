@@ -1,6 +1,6 @@
 import cron from "node-cron";
 import dotenv from "dotenv";
-import { getTLTData } from "../replies/repliesStrategy.js";
+import { getAllHistory, getTLTData } from "../replies/repliesStrategy.js";
 import prisma from "../lib/prismaClient.js";
 import { calculateYields } from "../config/settings.js";
 
@@ -88,4 +88,43 @@ export function startDailyTasks() {
   cron.schedule("0 22 * * *", saveOpen, { timezone: "Europe/Moscow" });
   cron.schedule("0 23 * * *", saveClose, { timezone: "Europe/Moscow" });
   console.log("⏳ Планировщик запущен: open в 16:30 МСК, close в 23:00 МСК");
+}
+
+export async function setTwoYearsData() {
+  try {
+    const data = await getAllHistory();
+    const createdRecords = [];
+
+    for (let i = 0; i < data.length; i++) {
+      const dataForTwoYears = await prisma.dailyData.upsert({
+        where: { date: data[i].date },
+        update: {
+          open: data[i].open,
+          close: data[i].close,
+          fedRate: data[i].fedRate,
+          inflation: data[i].inflation,
+          dividend: data[i].dividend,
+          nominalYield: data[i].nominalYield ?? null,
+          realYield: data[i].realYield ?? null,
+        },
+        create: {
+          date: data[i].date,
+          open: data[i].open,
+          close: data[i].close,
+          fedRate: data[i].fedRate,
+          inflation: data[i].inflation,
+          dividend: data[i].dividend,
+          nominalYield: data[i].nominalYield ?? null,
+          realYield: data[i].realYield ?? null,
+        },
+      });
+
+      createdRecords.push(dataForTwoYears);
+    }
+    console.log(`✅ Создано/обновлено ${createdRecords.length} записей`);
+    return createdRecords;
+  } catch (error) {
+    console.error("❌ Ошибка в setTwoYearsData:", error);
+    throw error;
+  }
 }
