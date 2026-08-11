@@ -50,6 +50,7 @@ const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === "production";
 
 const dataHistory = getAllHistory();
+console.log(dataHistory);
 startDailyTasks();
 
 const SELF_PING_INTERVAL = 10 * 60 * 1000;
