@@ -22,14 +22,14 @@ export async function saveOpen() {
         open: data.price,
         fedRate: data.fedRate,
         inflation: data.inflationRate,
-        dividend: parseFloat(data.lastDividend) || null,
+        dividend: data.lastDividend,
       },
       create: {
         date: today,
         open: data.price,
         fedRate: data.fedRate,
         inflation: data.inflationRate,
-        dividend: parseFloat(data.lastDividend) || null,
+        dividend: data.lastDividend,
       },
     });
 

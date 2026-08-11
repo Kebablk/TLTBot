@@ -114,7 +114,7 @@ export async function getTLTData() {
 
     return {
       price: price ?? 0,
-      lastDividend: last?.amount || "нет данных",
+      lastDividend: last ? parseFloat(last.amount) : null,
       lastExDate: last?.ex_dividend_date || "нет данных",
       fedRate,
       inflationRate,
