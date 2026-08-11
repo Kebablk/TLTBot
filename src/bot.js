@@ -33,7 +33,7 @@ BOT.hears("📊 Данные", async (ctx) => {
 
   await ctx.reply(reply, {
     reply_markup: mainKeyboard,
-    parse_mode: "MarkdownV2",
+    parse_mode: "HTML",
   });
 });
 BOT.catch((err) => {

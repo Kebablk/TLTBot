@@ -31,7 +31,7 @@ export default async function getData(ctx) {
       inflation,
     );
 
-    let reply = `📊 **API (сейчас)**:\n\n🏷️ Цена TLT: $${data.price}\n💰 Купон: ${data.lastDividend}, ${data.lastExDate}\n🏦 Ставка ФРС: ${data.fedRate}\n📈 Уровень инфляции США: ${data.inflationRate}\n🗒️ Номинальная доходность: ${nominalYield}\n🗒️ Реальная доходность: ${realYield}\n\n📁 **БД (последняя запись)**:\n\n📆 Дата: ${lastRecord.date}\n🔓 Открытие TLT: ${lastRecord.open}\n🔒 Закрытие TLT: ${lastRecord.close}\n💰 Купон: ${lastRecord.dividend}\n🏦 Ставка ФРС: ${lastRecord.fedRate}\n📈 Уровень инфляции США: ${lastRecord.inflation}\n🗒️ Номинальная доходность: ${nominalYield}\n🗒️ Реальная доходность: ${realYield}`;
+    let reply = `📊 <b>API (сейчас)</b>:\n\n🏷️ Цена TLT: $${data.price}\n💰 Купон: ${data.lastDividend}, ${data.lastExDate}\n🏦 Ставка ФРС: ${data.fedRate}\n📈 Уровень инфляции США: ${data.inflationRate}\n🗒️ Номинальная доходность: ${nominalYield}\n🗒️ Реальная доходность: ${realYield}\n\n📁 <b>БД (последняя запись)</b>:\n\n📆 Дата: ${lastRecord.date}\n🔓 Открытие TLT: ${lastRecord.open}\n🔒 Закрытие TLT: ${lastRecord.close}\n💰 Купон: ${lastRecord.dividend}\n🏦 Ставка ФРС: ${lastRecord.fedRate}\n📈 Уровень инфляции США: ${lastRecord.inflation}\n🗒️ Номинальная доходность: ${nominalYield}\n🗒️ Реальная доходность: ${realYield}`;
     return reply;
   } catch (err) {
     await ctx.reply("❌ Ошибка получения данных");
