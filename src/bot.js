@@ -24,10 +24,6 @@ BOT.command("start", async (ctx) => {
   );
 });
 
-BOT.command("data", async (ctx) => {
-  const reply = await getData();
-  await ctx.reply(reply, { reply_markup: mainKeyboard });
-});
 BOT.hears("📊 Данные", async (ctx) => {
   const reply = await getData();
 
