@@ -25,18 +25,14 @@ export default async function getData(ctx) {
     });
     const dividend = existing?.dividend ?? null;
     const inflation = existing?.inflation ?? null;
-    const { nominalYieldDB, realYieldDB } = calculateYields(
-      data.price,
-      dividend,
-      inflation,
-    );
-    const { nominalYieldAPI, realYieldAPI } = calculateYields(
+    const DBYields = calculateYields(data.price, dividend, inflation);
+    const APIYields = calculateYields(
       data.price,
       data.lastDividend,
       data.inflationRate,
     );
 
-    let reply = `📊 <b>API (сейчас)</b>:\n\n🏷️ Цена TLT: $${data.price}\n💰 Купон: ${data.lastDividend}, ${data.lastExDate}\n🏦 Ставка ФРС: ${data.fedRate}\n📈 Инфляция США: ${data.inflationRate}\n🗒️ nominalYield: ${nominalYieldAPI}\n🗒️ realYield: ${realYieldAPI}\n\n📁 <b>БД (последняя запись)</b>:\n\n📆 Дата: ${lastRecord.date}\n🔓 Открытие TLT: ${lastRecord.open}\n🔒 Закрытие TLT: ${lastRecord.close}\n💰 Купон: ${lastRecord.dividend}\n🏦 Ставка ФРС: ${lastRecord.fedRate}\n📈 Инфляция США: ${lastRecord.inflation}\n🗒️ nominalYield:  ${nominalYieldDB}\n🗒️ realYield: ${realYieldDB}`;
+    let reply = `📊 <b>API (сейчас)</b>:\n\n🏷️ Цена TLT: $${data.price}\n💰 Купон: ${data.lastDividend}, ${data.lastExDate}\n🏦 Ставка ФРС: ${data.fedRate}\n📈 Инфляция США: ${data.inflationRate}\n🗒️ nominalYield: ${APIYields.nominalYield}\n🗒️ realYield: ${APIYields.realYield}\n\n📁 <b>БД (последняя запись)</b>:\n\n📆 Дата: ${lastRecord.date}\n🔓 Открытие TLT: ${lastRecord.open}\n🔒 Закрытие TLT: ${lastRecord.close}\n💰 Купон: ${lastRecord.dividend}\n🏦 Ставка ФРС: ${lastRecord.fedRate}\n📈 Инфляция США: ${lastRecord.inflation}\n🗒️ nominalYield:  ${DBYields.nominalYield}\n🗒️ realYield: ${DBYields.realYield}`;
     return reply;
   } catch (err) {
     await ctx.reply("❌ Ошибка получения данных");
