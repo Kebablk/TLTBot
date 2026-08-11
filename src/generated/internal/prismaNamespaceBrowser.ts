@@ -78,6 +78,8 @@ export const DailyDataScalarFieldEnum = {
   fedRate: 'fedRate',
   inflation: 'inflation',
   dividend: 'dividend',
+  nominalYield: 'nominalYield',
+  realYield: 'realYield',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

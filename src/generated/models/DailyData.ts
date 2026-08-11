@@ -32,6 +32,8 @@ export type DailyDataAvgAggregateOutputType = {
   fedRate: number | null
   inflation: number | null
   dividend: number | null
+  nominalYield: number | null
+  realYield: number | null
 }
 
 export type DailyDataSumAggregateOutputType = {
@@ -40,6 +42,8 @@ export type DailyDataSumAggregateOutputType = {
   fedRate: number | null
   inflation: number | null
   dividend: number | null
+  nominalYield: number | null
+  realYield: number | null
 }
 
 export type DailyDataMinAggregateOutputType = {
@@ -50,6 +54,8 @@ export type DailyDataMinAggregateOutputType = {
   fedRate: number | null
   inflation: number | null
   dividend: number | null
+  nominalYield: number | null
+  realYield: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -62,6 +68,8 @@ export type DailyDataMaxAggregateOutputType = {
   fedRate: number | null
   inflation: number | null
   dividend: number | null
+  nominalYield: number | null
+  realYield: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -74,6 +82,8 @@ export type DailyDataCountAggregateOutputType = {
   fedRate: number
   inflation: number
   dividend: number
+  nominalYield: number
+  realYield: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -86,6 +96,8 @@ export type DailyDataAvgAggregateInputType = {
   fedRate?: true
   inflation?: true
   dividend?: true
+  nominalYield?: true
+  realYield?: true
 }
 
 export type DailyDataSumAggregateInputType = {
@@ -94,6 +106,8 @@ export type DailyDataSumAggregateInputType = {
   fedRate?: true
   inflation?: true
   dividend?: true
+  nominalYield?: true
+  realYield?: true
 }
 
 export type DailyDataMinAggregateInputType = {
@@ -104,6 +118,8 @@ export type DailyDataMinAggregateInputType = {
   fedRate?: true
   inflation?: true
   dividend?: true
+  nominalYield?: true
+  realYield?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -116,6 +132,8 @@ export type DailyDataMaxAggregateInputType = {
   fedRate?: true
   inflation?: true
   dividend?: true
+  nominalYield?: true
+  realYield?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -128,6 +146,8 @@ export type DailyDataCountAggregateInputType = {
   fedRate?: true
   inflation?: true
   dividend?: true
+  nominalYield?: true
+  realYield?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -227,6 +247,8 @@ export type DailyDataGroupByOutputType = {
   fedRate: number | null
   inflation: number | null
   dividend: number | null
+  nominalYield: number | null
+  realYield: number | null
   createdAt: Date
   updatedAt: Date
   _count: DailyDataCountAggregateOutputType | null
@@ -262,6 +284,8 @@ export type DailyDataWhereInput = {
   fedRate?: Prisma.FloatNullableFilter<"DailyData"> | number | null
   inflation?: Prisma.FloatNullableFilter<"DailyData"> | number | null
   dividend?: Prisma.FloatNullableFilter<"DailyData"> | number | null
+  nominalYield?: Prisma.FloatNullableFilter<"DailyData"> | number | null
+  realYield?: Prisma.FloatNullableFilter<"DailyData"> | number | null
   createdAt?: Prisma.DateTimeFilter<"DailyData"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DailyData"> | Date | string
 }
@@ -274,6 +298,8 @@ export type DailyDataOrderByWithRelationInput = {
   fedRate?: Prisma.SortOrderInput | Prisma.SortOrder
   inflation?: Prisma.SortOrderInput | Prisma.SortOrder
   dividend?: Prisma.SortOrderInput | Prisma.SortOrder
+  nominalYield?: Prisma.SortOrderInput | Prisma.SortOrder
+  realYield?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -289,6 +315,8 @@ export type DailyDataWhereUniqueInput = Prisma.AtLeast<{
   fedRate?: Prisma.FloatNullableFilter<"DailyData"> | number | null
   inflation?: Prisma.FloatNullableFilter<"DailyData"> | number | null
   dividend?: Prisma.FloatNullableFilter<"DailyData"> | number | null
+  nominalYield?: Prisma.FloatNullableFilter<"DailyData"> | number | null
+  realYield?: Prisma.FloatNullableFilter<"DailyData"> | number | null
   createdAt?: Prisma.DateTimeFilter<"DailyData"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DailyData"> | Date | string
 }, "id" | "date">
@@ -301,6 +329,8 @@ export type DailyDataOrderByWithAggregationInput = {
   fedRate?: Prisma.SortOrderInput | Prisma.SortOrder
   inflation?: Prisma.SortOrderInput | Prisma.SortOrder
   dividend?: Prisma.SortOrderInput | Prisma.SortOrder
+  nominalYield?: Prisma.SortOrderInput | Prisma.SortOrder
+  realYield?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.DailyDataCountOrderByAggregateInput
@@ -321,6 +351,8 @@ export type DailyDataScalarWhereWithAggregatesInput = {
   fedRate?: Prisma.FloatNullableWithAggregatesFilter<"DailyData"> | number | null
   inflation?: Prisma.FloatNullableWithAggregatesFilter<"DailyData"> | number | null
   dividend?: Prisma.FloatNullableWithAggregatesFilter<"DailyData"> | number | null
+  nominalYield?: Prisma.FloatNullableWithAggregatesFilter<"DailyData"> | number | null
+  realYield?: Prisma.FloatNullableWithAggregatesFilter<"DailyData"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DailyData"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DailyData"> | Date | string
 }
@@ -333,6 +365,8 @@ export type DailyDataCreateInput = {
   fedRate?: number | null
   inflation?: number | null
   dividend?: number | null
+  nominalYield?: number | null
+  realYield?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -345,6 +379,8 @@ export type DailyDataUncheckedCreateInput = {
   fedRate?: number | null
   inflation?: number | null
   dividend?: number | null
+  nominalYield?: number | null
+  realYield?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -357,6 +393,8 @@ export type DailyDataUpdateInput = {
   fedRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   inflation?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   dividend?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  nominalYield?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  realYield?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -369,6 +407,8 @@ export type DailyDataUncheckedUpdateInput = {
   fedRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   inflation?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   dividend?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  nominalYield?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  realYield?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -381,6 +421,8 @@ export type DailyDataCreateManyInput = {
   fedRate?: number | null
   inflation?: number | null
   dividend?: number | null
+  nominalYield?: number | null
+  realYield?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -393,6 +435,8 @@ export type DailyDataUpdateManyMutationInput = {
   fedRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   inflation?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   dividend?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  nominalYield?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  realYield?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -405,6 +449,8 @@ export type DailyDataUncheckedUpdateManyInput = {
   fedRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   inflation?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   dividend?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  nominalYield?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  realYield?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -417,6 +463,8 @@ export type DailyDataCountOrderByAggregateInput = {
   fedRate?: Prisma.SortOrder
   inflation?: Prisma.SortOrder
   dividend?: Prisma.SortOrder
+  nominalYield?: Prisma.SortOrder
+  realYield?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -427,6 +475,8 @@ export type DailyDataAvgOrderByAggregateInput = {
   fedRate?: Prisma.SortOrder
   inflation?: Prisma.SortOrder
   dividend?: Prisma.SortOrder
+  nominalYield?: Prisma.SortOrder
+  realYield?: Prisma.SortOrder
 }
 
 export type DailyDataMaxOrderByAggregateInput = {
@@ -437,6 +487,8 @@ export type DailyDataMaxOrderByAggregateInput = {
   fedRate?: Prisma.SortOrder
   inflation?: Prisma.SortOrder
   dividend?: Prisma.SortOrder
+  nominalYield?: Prisma.SortOrder
+  realYield?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -449,6 +501,8 @@ export type DailyDataMinOrderByAggregateInput = {
   fedRate?: Prisma.SortOrder
   inflation?: Prisma.SortOrder
   dividend?: Prisma.SortOrder
+  nominalYield?: Prisma.SortOrder
+  realYield?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -459,6 +513,8 @@ export type DailyDataSumOrderByAggregateInput = {
   fedRate?: Prisma.SortOrder
   inflation?: Prisma.SortOrder
   dividend?: Prisma.SortOrder
+  nominalYield?: Prisma.SortOrder
+  realYield?: Prisma.SortOrder
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -487,6 +543,8 @@ export type DailyDataSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   fedRate?: boolean
   inflation?: boolean
   dividend?: boolean
+  nominalYield?: boolean
+  realYield?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["dailyData"]>
@@ -499,6 +557,8 @@ export type DailyDataSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   fedRate?: boolean
   inflation?: boolean
   dividend?: boolean
+  nominalYield?: boolean
+  realYield?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["dailyData"]>
@@ -511,6 +571,8 @@ export type DailyDataSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   fedRate?: boolean
   inflation?: boolean
   dividend?: boolean
+  nominalYield?: boolean
+  realYield?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["dailyData"]>
@@ -523,11 +585,13 @@ export type DailyDataSelectScalar = {
   fedRate?: boolean
   inflation?: boolean
   dividend?: boolean
+  nominalYield?: boolean
+  realYield?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DailyDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "date" | "open" | "close" | "fedRate" | "inflation" | "dividend" | "createdAt" | "updatedAt", ExtArgs["result"]["dailyData"]>
+export type DailyDataOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "date" | "open" | "close" | "fedRate" | "inflation" | "dividend" | "nominalYield" | "realYield" | "createdAt" | "updatedAt", ExtArgs["result"]["dailyData"]>
 
 export type $DailyDataPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DailyData"
@@ -540,6 +604,8 @@ export type $DailyDataPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     fedRate: number | null
     inflation: number | null
     dividend: number | null
+    nominalYield: number | null
+    realYield: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["dailyData"]>
@@ -972,6 +1038,8 @@ export interface DailyDataFieldRefs {
   readonly fedRate: Prisma.FieldRef<"DailyData", 'Float'>
   readonly inflation: Prisma.FieldRef<"DailyData", 'Float'>
   readonly dividend: Prisma.FieldRef<"DailyData", 'Float'>
+  readonly nominalYield: Prisma.FieldRef<"DailyData", 'Float'>
+  readonly realYield: Prisma.FieldRef<"DailyData", 'Float'>
   readonly createdAt: Prisma.FieldRef<"DailyData", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DailyData", 'DateTime'>
 }

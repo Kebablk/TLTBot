@@ -50,6 +50,11 @@ const isProduction = process.env.NODE_ENV === "production";
 
 startDailyTasks();
 
+const SELF_PING_INTERVAL = 10 * 60 * 1000;
+setInterval(() => {
+  fetch(`https://${process.env.RENDER_EXTERNAL_URL}/health`).catch(() => {});
+}, SELF_PING_INTERVAL);
+
 if (isProduction) {
   app.listen(PORT, async () => {
     console.log(`🚀 Сервер запущен на порту ${PORT}`);
