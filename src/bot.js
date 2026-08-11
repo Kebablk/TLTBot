@@ -60,7 +60,7 @@ if (isProduction) {
   app.listen(PORT, async () => {
     console.log(`🚀 Сервер запущен на порту ${PORT}`);
 
-    const webhookUrl = `${process.env.RENDER_EXTERNAL_URL}/webhook/${TOKEN}`;
+    const webhookUrl = `https://${process.env.RENDER_EXTERNAL_URL}/webhook/${TOKEN}`;
     try {
       await BOT.api.setWebhook(webhookUrl, {
         drop_pending_updates: true,
