@@ -30,23 +30,11 @@ BOT.command("data", async (ctx) => {
 });
 BOT.hears("📊 Данные", async (ctx) => {
   const reply = await getData();
-  const lastRecord = await prisma.dailyData.findFirst({
-    orderBy: { date: "desc" },
-    select: {
-      open: true,
-      close: true,
-      fedRate: true,
-      inflation: true,
-      dividend: true,
-    },
-  });
 
-  await ctx.reply(
-    `📊 **Данные за сейчас**:\n\n${reply}\n\n📁 Данные последней записи БД:\n\n🔓 Открытие TLT: ${lastRecord.open}\n🔒 Закрытие TLT: ${lastRecord.close}\n💰 Дивиденд: ${lastRecord.dividend}\n🏦 Ставка ФРС: ${lastRecord.fedRate}\n📈 Уровень инфляции США: ${lastRecord.inflation}`,
-    {
-      reply_markup: mainKeyboard,
-    },
-  );
+  await ctx.reply(reply, {
+    reply_markup: mainKeyboard,
+    parse_mode: "MarkdownV2",
+  });
 });
 BOT.catch((err) => {
   console.error("Global error: ", err);
