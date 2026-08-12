@@ -165,37 +165,39 @@ export async function saveClose() {
 }
 
 export function startDailyTasks() {
-  cron.schedule("29 20 * * *", saveOpen, { timezone: "Europe/Moscow" });
-  cron.schedule("30 20 * * *", saveClose, { timezone: "Europe/Moscow" });
+  cron.schedule("39 20 * * *", saveOpen, { timezone: "Europe/Moscow" });
+  cron.schedule("40 20 * * *", saveClose, { timezone: "Europe/Moscow" });
   console.log("⏳ Планировщик запущен: open в 16:30 МСК, close в 23:00 МСК");
 }
 
 export async function setTwoYearsData() {
   try {
     const data = await getAllHistory();
+    const today = new Date().toISOString().split("T")[0];
+    const filteredData = data.filter((item) => item.date < today);
     const createdRecords = [];
 
-    for (let i = 0; i < data.length; i++) {
+    for (let i = 0; i < filteredData.length; i++) {
       const dataForTwoYears = await prisma.dailyData.upsert({
         where: { date: data[i].date },
         update: {
-          open: data[i].open,
-          close: data[i].close,
-          fedRate: data[i].fedRate,
-          inflation: data[i].inflation,
-          dividend: data[i].dividend,
-          nominalYield: data[i].nominalYield ?? null,
-          realYield: data[i].realYield ?? null,
+          open: filteredData[i].open,
+          close: filteredData[i].close,
+          fedRate: filteredData[i].fedRate,
+          inflation: filteredData[i].inflation,
+          dividend: filteredData[i].dividend,
+          nominalYield: filteredData[i].nominalYield ?? null,
+          realYield: filteredData[i].realYield ?? null,
         },
         create: {
-          date: data[i].date,
-          open: data[i].open,
-          close: data[i].close,
-          fedRate: data[i].fedRate,
-          inflation: data[i].inflation,
-          dividend: data[i].dividend,
-          nominalYield: data[i].nominalYield ?? null,
-          realYield: data[i].realYield ?? null,
+          date: filteredData[i].date,
+          open: filteredData[i].open,
+          close: filteredData[i].close,
+          fedRate: filteredData[i].fedRate,
+          inflation: filteredData[i].inflation,
+          dividend: filteredData[i].dividend,
+          nominalYield: filteredData[i].nominalYield ?? null,
+          realYield: filteredData[i].realYield ?? null,
         },
       });
 
