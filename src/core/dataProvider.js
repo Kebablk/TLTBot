@@ -6,44 +6,72 @@ import { calculateYields } from "../config/settings.js";
 
 dotenv.config();
 
+async function fetchPriceWithRetry(maxAttempts = 30, delayMs = 5000) {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const data = await getTLTData();
+      if (data.price && data.price !== 0) {
+        return data.price;
+      }
+    } catch (err) {
+      console.warn(
+        `⚠️ Ошибка получения цены (попытка ${attempt}):`,
+        err.message,
+      );
+    }
+    console.log(
+      `⏳ Цена не получена, попытка ${attempt + 1} через ${delayMs}мс...`,
+    );
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+  console.warn(`❌ Цена не получена за ${maxAttempts} попыток`);
+  return null;
+}
+
 export async function saveOpen() {
   try {
     const data = await getTLTData();
-    if (!data.price || data.price === 0) {
-      console.warn("Цена не получена, скипаем");
-      return;
-    }
-
     const today = new Date().toISOString().split("T")[0];
 
     await prisma.dailyData.upsert({
       where: { date: today },
       update: {
-        open: data.price,
         fedRate: data.fedRate,
         inflation: data.inflationRate,
         dividend: data.lastDividend,
       },
       create: {
         date: today,
-        open: data.price,
         fedRate: data.fedRate,
         inflation: data.inflationRate,
         dividend: data.lastDividend,
+        open: null,
       },
     });
+    console.log(`Запись за ${today} создана/обновлена (без open)`);
 
-    console.log(`✅ Запись за ${today} обновлена (open, макро)`);
+    (async () => {
+      const openPrice = await fetchOpenWithRetry(60, 5000);
+      if (openPrice !== null) {
+        await prisma.dailyData.update({
+          where: { date: today },
+          data: { open: openPrice },
+        });
+        console.log(`open дозаписан: ${openPrice}`);
+      } else {
+        console.warn(`open не получен, запись осталась без open`);
+      }
+    })();
   } catch (error) {
-    console.error("❌ Ошибка в saveOpenAndMacro:", error);
+    console.error("Ошибка в saveOpenAndMacro:", error);
   }
 }
 
 export async function saveClose() {
   try {
-    const data = await getTLTData();
-    if (!data.price || data.price === 0) {
-      console.warn("Цена не получена, скипаем");
+    const closePrice = await fetchPriceWithRetry(30, 5000);
+    if (closePrice === null) {
+      console.warn("❌ Цена close не получена, запись пропущена");
       return;
     }
 
@@ -58,7 +86,7 @@ export async function saveClose() {
     const inflation = existing?.inflation ?? null;
 
     const { nominalYield, realYield } = calculateYields(
-      data.price,
+      closePrice,
       dividend,
       inflation,
     );
@@ -66,27 +94,27 @@ export async function saveClose() {
     await prisma.dailyData.upsert({
       where: { date: today },
       update: {
-        close: data.price,
+        close: closePrice,
         nominalYield: nominalYield,
         realYield: realYield,
       },
       create: {
         date: today,
-        close: data.price,
+        close: closePrice,
         nominalYield: nominalYield,
         realYield: realYield,
       },
     });
 
-    console.log(`✅ Запись за ${today} обновлена (close)`);
+    console.log(`Запись за ${today} обновлена (close)`);
   } catch (error) {
-    console.error("❌ Ошибка в saveClose:", error);
+    console.error("Ошибка в saveClose:", error);
   }
 }
 
 export function startDailyTasks() {
-  cron.schedule("30 16 * * *", saveOpen, { timezone: "Europe/Moscow" });
-  cron.schedule("0 23 * * *", saveClose, { timezone: "Europe/Moscow" });
+  cron.schedule("34 19 * * *", saveOpen, { timezone: "Europe/Moscow" });
+  cron.schedule("35 19 * * *", saveClose, { timezone: "Europe/Moscow" });
   console.log("⏳ Планировщик запущен: open в 16:30 МСК, close в 23:00 МСК");
 }
 
