@@ -51,7 +51,6 @@ const isProduction = process.env.NODE_ENV === "production";
 
 (async function setHistory() {
   const data = await setTwoYearsData();
-  console.log(data);
 })();
 startDailyTasks();
 
