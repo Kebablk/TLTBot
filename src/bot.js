@@ -37,7 +37,6 @@ BOT.catch((err) => {
 });
 
 const app = express();
-
 app.get("/health", (req, res) => {
   res.send("OK");
 });
