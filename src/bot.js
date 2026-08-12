@@ -49,11 +49,11 @@ const PORT = process.env.PORT || 3000;
 
 const isProduction = process.env.NODE_ENV === "production";
 
-startDailyTasks();
 (async function setHistory() {
   const data = await setTwoYearsData();
   console.log(data);
 })();
+startDailyTasks();
 
 const SELF_PING_INTERVAL = 10 * 60 * 1000;
 setInterval(() => {
