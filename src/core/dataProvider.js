@@ -33,13 +33,31 @@ async function getOpenPrice() {
 }
 
 async function getClosePrice() {
+  const today = new Date().toISOString().split("T")[0];
+  const start = new Date(today);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 1);
+
   try {
-    const quote = await yahooFinance.quote("TLT");
-    return quote.regularMarketPrice || null;
+    const chart = await yahooFinance.chart("TLT", {
+      period1: start,
+      period2: end,
+      interval: "1d",
+    });
+    const candles = chart?.quotes || [];
+    if (candles.length > 0) {
+      const lastCandle = candles[candles.length - 1];
+      if (
+        lastCandle.close &&
+        lastCandle.date.toISOString().split("T")[0] === today
+      ) {
+        return lastCandle.close;
+      }
+    }
   } catch (err) {
-    console.warn("Ошибка получения close:", err.message);
-    return null;
+    console.warn("Ошибка получения свечи для close:", err.message);
   }
+  return null;
 }
 
 async function fetchPriceWithRetry(fetchFn, maxAttempts = 30, delayMs = 5000) {
@@ -69,6 +87,7 @@ export async function saveOpen() {
     await prisma.dailyData.upsert({
       where: { date: today },
       update: {
+        close: null,
         fedRate: data.fedRate,
         inflation: data.inflationRate,
         dividend: data.lastDividend,
@@ -79,6 +98,7 @@ export async function saveOpen() {
         inflation: data.inflationRate,
         dividend: data.lastDividend,
         open: null,
+        close: null,
       },
     });
     console.log(`Запись за ${today} создана/обновлена (без open)`);
@@ -145,8 +165,8 @@ export async function saveClose() {
 }
 
 export function startDailyTasks() {
-  cron.schedule("20 20 * * *", saveOpen, { timezone: "Europe/Moscow" });
-  cron.schedule("21 20 * * *", saveClose, { timezone: "Europe/Moscow" });
+  cron.schedule("29 20 * * *", saveOpen, { timezone: "Europe/Moscow" });
+  cron.schedule("30 20 * * *", saveClose, { timezone: "Europe/Moscow" });
   console.log("⏳ Планировщик запущен: open в 16:30 МСК, close в 23:00 МСК");
 }
 
