@@ -6,25 +6,58 @@ import { calculateYields } from "../config/settings.js";
 
 dotenv.config();
 
-async function fetchPriceWithRetry(maxAttempts = 30, delayMs = 5000) {
+async function getOpenPrice() {
+  const today = new Date().toISOString().split("T")[0];
+  const start = new Date(today);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 1);
+
+  try {
+    const chart = await yahooFinance.chart("TLT", {
+      period1: start,
+      period2: end,
+      interval: "1d",
+    });
+    const candle = chart?.quotes?.[0];
+    if (
+      candle &&
+      candle.open &&
+      candle.date.toISOString().split("T")[0] === today
+    ) {
+      return candle.open;
+    }
+  } catch (err) {
+    console.warn("Ошибка получения свечи для open:", err.message);
+  }
+  return null;
+}
+
+async function getClosePrice() {
+  try {
+    const quote = await yahooFinance.quote("TLT");
+    return quote.regularMarketPrice || null;
+  } catch (err) {
+    console.warn("Ошибка получения close:", err.message);
+    return null;
+  }
+}
+
+async function fetchPriceWithRetry(fetchFn, maxAttempts = 30, delayMs = 5000) {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      const data = await getTLTData();
-      if (data.price && data.price !== 0) {
-        return data.price;
+      const price = await fetchFn();
+      if (price !== null && price !== 0) {
+        return price;
       }
     } catch (err) {
-      console.warn(
-        `⚠️ Ошибка получения цены (попытка ${attempt}):`,
-        err.message,
-      );
+      console.warn(`⚠️ Ошибка (попытка ${attempt}):`, err.message);
     }
-    console.log(
-      `⏳ Цена не получена, попытка ${attempt + 1} через ${delayMs}мс...`,
-    );
-    await new Promise((resolve) => setTimeout(resolve, delayMs));
+    if (attempt < maxAttempts) {
+      console.log(`⏳ Попытка ${attempt + 1} через ${delayMs}мс...`);
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
   }
-  console.warn(`❌ Цена не получена за ${maxAttempts} попыток`);
+  console.warn(`❌ Не удалось получить цену за ${maxAttempts} попыток`);
   return null;
 }
 
@@ -51,7 +84,7 @@ export async function saveOpen() {
     console.log(`Запись за ${today} создана/обновлена (без open)`);
 
     (async () => {
-      const openPrice = await fetchOpenWithRetry(60, 5000);
+      const openPrice = await fetchPriceWithRetry(getOpenPrice, 120, 5000);
       if (openPrice !== null) {
         await prisma.dailyData.update({
           where: { date: today },
@@ -69,7 +102,7 @@ export async function saveOpen() {
 
 export async function saveClose() {
   try {
-    const closePrice = await fetchPriceWithRetry(30, 5000);
+    const closePrice = await fetchPriceWithRetry(getClosePrice, 30, 5000);
     if (closePrice === null) {
       console.warn("❌ Цена close не получена, запись пропущена");
       return;
@@ -84,7 +117,6 @@ export async function saveClose() {
 
     const dividend = existing?.dividend ?? null;
     const inflation = existing?.inflation ?? null;
-
     const { nominalYield, realYield } = calculateYields(
       closePrice,
       dividend,
@@ -113,8 +145,8 @@ export async function saveClose() {
 }
 
 export function startDailyTasks() {
-  cron.schedule("34 19 * * *", saveOpen, { timezone: "Europe/Moscow" });
-  cron.schedule("35 19 * * *", saveClose, { timezone: "Europe/Moscow" });
+  cron.schedule("30 16 * * *", saveOpen, { timezone: "Europe/Moscow" });
+  cron.schedule("0 23 * * *", saveClose, { timezone: "Europe/Moscow" });
   console.log("⏳ Планировщик запущен: open в 16:30 МСК, close в 23:00 МСК");
 }
 
