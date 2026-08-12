@@ -3,7 +3,7 @@ import prisma from "../lib/prismaClient.js";
 import { getTLTData } from "./repliesStrategy.js";
 import { calculateYields } from "../config/settings.js";
 
-export default async function getData(ctx) {
+export default async function getData() {
   try {
     const data = await getTLTData();
     const lastRecord = await prisma.dailyData.findFirst({
