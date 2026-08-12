@@ -174,7 +174,7 @@ export async function setTwoYearsData() {
   try {
     const data = await getAllHistory();
     const today = new Date().toISOString().split("T")[0];
-    const filteredData = data.filter((item) => item.date < today);
+    const filteredData = data.filter((item) => item.date <= today);
     const createdRecords = [];
 
     for (let i = 0; i < filteredData.length; i++) {
