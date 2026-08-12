@@ -21,11 +21,12 @@ export default async function getData(ctx) {
     const today = new Date().toISOString().split("T")[0];
     const existing = await prisma.dailyData.findUnique({
       where: { date: today },
-      select: { dividend: true, inflation: true },
+      select: { close: true, dividend: true, inflation: true },
     });
+    const closeTLT = existing?.close ?? null;
     const dividend = existing?.dividend ?? null;
     const inflation = existing?.inflation ?? null;
-    const DBYields = calculateYields(data.price, dividend, inflation);
+    const DBYields = calculateYields(closeTLT, dividend, inflation);
     const APIYields = calculateYields(
       data.price,
       data.lastDividend,
