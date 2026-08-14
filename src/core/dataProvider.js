@@ -8,60 +8,6 @@ import YahooFinance from "yahoo-finance2";
 dotenv.config();
 const yahooFinance = new YahooFinance();
 
-// async function getOpenPrice() {
-//   const today = new Date().toISOString().split("T")[0];
-//   const start = new Date(today);
-//   const end = new Date(start);
-//   end.setDate(end.getDate() + 1);
-
-//   try {
-//     const chart = await yahooFinance.chart("TLT", {
-//       period1: start,
-//       period2: end,
-//       interval: "1d",
-//     });
-//     const candle = chart?.quotes?.[0];
-//     if (
-//       candle &&
-//       candle.open &&
-//       candle.date.toISOString().split("T")[0] === today
-//     ) {
-//       return candle.open;
-//     }
-//   } catch (err) {
-//     console.warn("Ошибка получения свечи для open:", err.message);
-//   }
-//   return null;
-// }
-
-// async function getClosePrice() {
-//   const today = new Date().toISOString().split("T")[0];
-//   const start = new Date(today);
-//   const end = new Date(start);
-//   end.setDate(end.getDate() + 1);
-
-//   try {
-//     const chart = await yahooFinance.chart("TLT", {
-//       period1: start,
-//       period2: end,
-//       interval: "1d",
-//     });
-//     const candles = chart?.quotes || [];
-//     if (candles.length > 0) {
-//       const lastCandle = candles[candles.length - 1];
-//       if (
-//         lastCandle.close &&
-//         lastCandle.date.toISOString().split("T")[0] === today
-//       ) {
-//         return lastCandle.close;
-//       }
-//     }
-//   } catch (err) {
-//     console.warn("Ошибка получения свечи для close:", err.message);
-//   }
-//   return null;
-// }
-
 async function getOpenPrice() {
   try {
     const quote = await yahooFinance.quote("TLT");
@@ -72,11 +18,9 @@ async function getOpenPrice() {
   }
 }
 
-// Получение цены закрытия (текущая цена после закрытия)
 async function getClosePrice() {
   try {
     const quote = await yahooFinance.quote("TLT");
-    // После закрытия рынка regularMarketPrice — это цена закрытия
     return quote.regularMarketPrice || null;
   } catch (err) {
     console.warn("Ошибка получения close:", err.message);
@@ -137,6 +81,7 @@ export async function saveOpen() {
     console.log(`Запись за ${today} создана/обновлена (без open)`);
 
     (async () => {
+      await new Promise((resolve) => setTimeout(resolve, 300000));
       const openPrice = await fetchPriceWithRetry(getOpenPrice, 120, 5000);
       if (openPrice !== null) {
         await prisma.dailyData.update({
@@ -165,7 +110,7 @@ export async function saveClose() {
       return;
     }
 
-    const closePrice = await fetchPriceWithRetry(getClosePrice, 30, 5000);
+    const closePrice = await fetchPriceWithRetry(getClosePrice, 120, 5000);
     if (closePrice === null) {
       console.warn("❌ Цена close не получена, запись пропущена");
       return;
