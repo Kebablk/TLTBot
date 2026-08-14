@@ -3,8 +3,10 @@ import dotenv from "dotenv";
 import { getAllHistory, getTLTData } from "../replies/repliesStrategy.js";
 import prisma from "../lib/prismaClient.js";
 import { calculateYields } from "../config/settings.js";
+import YahooFinance from "yahoo-finance2";
 
 dotenv.config();
+const yahooFinance = new YahooFinance();
 
 // async function getOpenPrice() {
 //   const today = new Date().toISOString().split("T")[0];
@@ -63,7 +65,6 @@ dotenv.config();
 async function getOpenPrice() {
   try {
     const quote = await yahooFinance.quote("TLT");
-    // Если regularMarketOpen отсутствует, вернём null
     return quote.regularMarketOpen || null;
   } catch (err) {
     console.warn("Ошибка получения open:", err.message);
@@ -106,6 +107,15 @@ export async function saveOpen() {
   try {
     const data = await getTLTData();
     const today = new Date().toISOString().split("T")[0];
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      console.log(
+        `⏳ Сегодня выходной (${dayOfWeek === 0 ? "воскресенье" : "суббота"}), задача пропущена`,
+      );
+      return;
+    }
 
     await prisma.dailyData.upsert({
       where: { date: today },
@@ -145,6 +155,16 @@ export async function saveOpen() {
 
 export async function saveClose() {
   try {
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      console.log(
+        `⏳ Сегодня выходной (${dayOfWeek === 0 ? "воскресенье" : "суббота"}), задача пропущена`,
+      );
+      return;
+    }
+
     const closePrice = await fetchPriceWithRetry(getClosePrice, 30, 5000);
     if (closePrice === null) {
       console.warn("❌ Цена close не получена, запись пропущена");
@@ -202,7 +222,7 @@ export async function setTwoYearsData() {
 
     for (let i = 0; i < filteredData.length; i++) {
       const dataForTwoYears = await prisma.dailyData.upsert({
-        where: { date: data[i].date },
+        where: { date: filteredData[i].date },
         update: {
           open: filteredData[i].open,
           close: filteredData[i].close,

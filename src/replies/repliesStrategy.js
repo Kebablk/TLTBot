@@ -215,6 +215,6 @@ export async function getAllHistory() {
     close: price.close,
     dividend: divMap[price.date] || null,
     fedRate: fedMap[price.date] || null,
-    cpi: cpiMap[price.date] || null,
+    inflation: cpiMap[price.date] || null,
   }));
 }
