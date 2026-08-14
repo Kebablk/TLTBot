@@ -1,4 +1,7 @@
+import YahooFinance from "yahoo-finance2";
 import prisma from "../lib/prismaClient.js";
+
+const yahooFinance = new YahooFinance();
 
 export function calculateYields(price, dividend, inflation) {
   if (!price || price === 0 || !dividend || dividend === 0) {
@@ -32,4 +35,40 @@ export async function calculateAnnualPeak(closeTLT) {
   const yearlyMax = yearlyHigh._max.close || null;
 
   return ((yearlyMax - closeTLT) / yearlyMax) * 100;
+}
+
+export async function isHistoricalLowAnchorTriggered(closeTLT) {
+  const historicalLow = await prisma.dailyData.aggregate({
+    where: {
+      date: {
+        gte: new Date(Date.now() - 730 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0],
+      },
+    },
+    _min: {
+      close: true,
+    },
+  });
+
+  const previousBottom = historicalLow._min.close;
+
+  if (!previousBottom || previousBottom === 0) return false;
+  return closeTLT <= previousBottom * 1.02;
+}
+
+async function getTLTVolume() {
+  try {
+    const quote = await yahooFinance.quote("TLT");
+    const volume = quote.regularMarketVolume;
+    const avgVolume = quote.averageDailyVolume3Month;
+    return { volume, avgVolume };
+  } catch (error) {
+    console.error("Ошибка получения объема TLT: ", error);
+    return null;
+  }
+}
+
+export async function calculateVolumetricPanic(openTLT, closeTLT) {
+  return volume > avgVolume * 2 && ((openTLT - closeTLT) / openTLT) * 100 > 2;
 }

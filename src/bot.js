@@ -3,7 +3,12 @@ import getData from "./replies/replies.js";
 import { mainKeyboard } from "./keyboards/keyboards.js";
 import dotenv from "dotenv";
 import express from "express";
-import { startDailyTasks, setTwoYearsData } from "./core/dataProvider.js";
+import {
+  startDailyTasks,
+  setTwoYearsData,
+  saveOpen,
+  saveClose,
+} from "./core/dataProvider.js";
 import prisma from "./lib/prismaClient.js";
 dotenv.config();
 
@@ -34,6 +39,28 @@ BOT.hears("📊 Данные", async (ctx) => {
 });
 BOT.catch((err) => {
   console.error("Global error: ", err);
+});
+
+BOT.command("testopen", async (ctx) => {
+  try {
+    await ctx.reply("⏳ Запускаю тестовую запись open...");
+    await saveOpen();
+    await ctx.reply("✅ Тестовая запись open выполнена. Проверьте БД.");
+  } catch (error) {
+    console.error("Ошибка в testopen:", error);
+    await ctx.reply("❌ Ошибка при выполнении testopen");
+  }
+});
+
+BOT.command("testclose", async (ctx) => {
+  try {
+    await ctx.reply("⏳ Запускаю тестовую запись close...");
+    await saveClose();
+    await ctx.reply("✅ Тестовая запись close выполнена. Проверьте БД.");
+  } catch (error) {
+    console.error("Ошибка в testclose:", error);
+    await ctx.reply("❌ Ошибка при выполнении testclose");
+  }
 });
 
 const app = express();
