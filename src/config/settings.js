@@ -14,3 +14,22 @@ export function calculateYields(price, dividend, inflation) {
 
   return { nominalYield, realYield };
 }
+
+export async function calculateAnnualPeak(closeTLT) {
+  const yearlyHigh = await prisma.dailyData.aggregate({
+    where: {
+      date: {
+        gte: new Date(new Date().setFullYear(new Date().getFullYear() - 1))
+          .toISOString()
+          .split("T")[0],
+      },
+    },
+    _max: {
+      close: true,
+    },
+  });
+
+  const yearlyMax = yearlyHigh._max.close || null;
+
+  return ((yearlyMax - closeTLT) / yearlyMax) * 100;
+}

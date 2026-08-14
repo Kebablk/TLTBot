@@ -17,6 +17,7 @@ model DailyData {
   dividend  Float?
   nominalYield Float?
   realYield Float?
+  yearlyMax Float?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

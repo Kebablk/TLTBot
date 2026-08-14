@@ -2,7 +2,7 @@ import cron from "node-cron";
 import dotenv from "dotenv";
 import { getAllHistory, getTLTData } from "../replies/repliesStrategy.js";
 import prisma from "../lib/prismaClient.js";
-import { calculateYields } from "../config/settings.js";
+import { calculateAnnualPeak, calculateYields } from "../config/settings.js";
 import YahooFinance from "yahoo-finance2";
 
 dotenv.config();
@@ -186,18 +186,22 @@ export async function saveClose() {
       inflation,
     );
 
+    const yearlyMax = calculateAnnualPeak(closePrice);
+
     await prisma.dailyData.upsert({
       where: { date: today },
       update: {
         close: closePrice,
         nominalYield: nominalYield,
         realYield: realYield,
+        yearlyMax: yearlyMax,
       },
       create: {
         date: today,
         close: closePrice,
         nominalYield: nominalYield,
         realYield: realYield,
+        yearlyMax: yearlyMax,
       },
     });
 
