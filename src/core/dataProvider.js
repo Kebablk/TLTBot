@@ -186,7 +186,7 @@ export async function saveClose() {
       inflation,
     );
 
-    const yearlyMax = calculateAnnualPeak(closePrice);
+    // const yearlyMax = calculateAnnualPeak(closePrice);
 
     await prisma.dailyData.upsert({
       where: { date: today },
@@ -194,14 +194,14 @@ export async function saveClose() {
         close: closePrice,
         nominalYield: nominalYield,
         realYield: realYield,
-        yearlyMax: yearlyMax,
+        // yearlyMax: yearlyMax,
       },
       create: {
         date: today,
         close: closePrice,
         nominalYield: nominalYield,
         realYield: realYield,
-        yearlyMax: yearlyMax,
+        // yearlyMax: yearlyMax,
       },
     });
 
