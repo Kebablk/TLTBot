@@ -70,5 +70,17 @@ async function getTLTVolume() {
 }
 
 export async function calculateVolumetricPanic(openTLT, closeTLT) {
+  const volumeData = getTLTVolume();
+  if (!volumeData) {
+    console.warn("Не удалось получить данные по объему");
+    return false;
+  }
+
+  const { volume, avgVolume } = volumeData;
+  if (!avgVolume || avgVolume === 0) {
+    console.warn("Средний объем равен 0 или отсутствует");
+    return false;
+  }
+
   return volume > avgVolume * 2 && ((openTLT - closeTLT) / openTLT) * 100 > 2;
 }
