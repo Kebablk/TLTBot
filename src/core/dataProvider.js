@@ -4,7 +4,6 @@ import { getAllHistory, getTLTData } from "../replies/repliesStrategy.js";
 import prisma from "../lib/prismaClient.js";
 import { calculateYields } from "../config/settings.js";
 import YahooFinance from "yahoo-finance2";
-import logger from "../../logs/logger.js";
 
 dotenv.config();
 const yahooFinance = new YahooFinance();
@@ -14,7 +13,7 @@ async function getOpenPrice() {
     const quote = await yahooFinance.quote("TLT");
     return quote.regularMarketOpen || null;
   } catch (err) {
-    logger.warn("Ошибка получения open:", err.message);
+    console.warn("Ошибка получения open:", err.message);
     return null;
   }
 }
@@ -24,7 +23,7 @@ async function getClosePrice() {
     const quote = await yahooFinance.quote("TLT");
     return quote.regularMarketPrice || null;
   } catch (err) {
-    logger.warn("Ошибка получения close:", err.message);
+    console.warn("Ошибка получения close:", err.message);
     return null;
   }
 }
@@ -37,14 +36,14 @@ async function fetchPriceWithRetry(fetchFn, maxAttempts = 30, delayMs = 5000) {
         return price;
       }
     } catch (err) {
-      logger.warn(`⚠️ Ошибка (попытка ${attempt}):`, err.message);
+      console.warn(`⚠️ Ошибка (попытка ${attempt}):`, err.message);
     }
     if (attempt < maxAttempts) {
-      logger.info(`⏳ Попытка ${attempt + 1} через ${delayMs}мс...`);
+      console.log(`⏳ Попытка ${attempt + 1} через ${delayMs}мс...`);
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
   }
-  logger.warn(`❌ Не удалось получить цену за ${maxAttempts} попыток`);
+  console.warn(`❌ Не удалось получить цену за ${maxAttempts} попыток`);
   return null;
 }
 
@@ -56,7 +55,7 @@ async function saveOpen() {
     const dayOfWeek = now.getDay();
 
     if (dayOfWeek === 0 || dayOfWeek === 6) {
-      logger.info(
+      console.log(
         `⏳ Сегодня выходной (${dayOfWeek === 0 ? "воскресенье" : "суббота"}), задача пропущена`,
       );
       return;
@@ -79,7 +78,7 @@ async function saveOpen() {
         close: null,
       },
     });
-    logger.info(`Запись за ${today} создана/обновлена (без open)`);
+    console.log(`Запись за ${today} создана/обновлена (без open)`);
 
     (async () => {
       await new Promise((resolve) => setTimeout(resolve, 300000));
@@ -89,13 +88,13 @@ async function saveOpen() {
           where: { date: today },
           data: { open: openPrice },
         });
-        logger.info(`open дозаписан: ${openPrice}`);
+        console.log(`open дозаписан: ${openPrice}`);
       } else {
-        logger.warn(`open не получен, запись осталась без open`);
+        console.warn(`open не получен, запись осталась без open`);
       }
     })();
   } catch (error) {
-    logger.error("Ошибка в saveOpenAndMacro:", error);
+    console.error("Ошибка в saveOpenAndMacro:", error);
   }
 }
 
@@ -105,7 +104,7 @@ async function saveClose() {
     const dayOfWeek = now.getDay();
 
     if (dayOfWeek === 0 || dayOfWeek === 6) {
-      logger.info(
+      console.log(
         `⏳ Сегодня выходной (${dayOfWeek === 0 ? "воскресенье" : "суббота"}), задача пропущена`,
       );
       return;
@@ -113,7 +112,7 @@ async function saveClose() {
 
     const closePrice = await fetchPriceWithRetry(getClosePrice, 120, 5000);
     if (closePrice === null) {
-      logger.warn("❌ Цена close не получена, запись пропущена");
+      console.warn("❌ Цена close не получена, запись пропущена");
       return;
     }
 
@@ -151,16 +150,16 @@ async function saveClose() {
       },
     });
 
-    logger.info(`Запись за ${today} обновлена (close)`);
+    console.log(`Запись за ${today} обновлена (close)`);
   } catch (error) {
-    logger.error("Ошибка в saveClose:", error);
+    console.error("Ошибка в saveClose:", error);
   }
 }
 
 export function startDailyTasks() {
   cron.schedule("30 16 * * *", saveOpen, { timezone: "Europe/Moscow" });
   cron.schedule("0 23 * * *", saveClose, { timezone: "Europe/Moscow" });
-  logger.info("⏳ Планировщик запущен: open в 16:30 МСК, close в 23:00 МСК");
+  console.log("⏳ Планировщик запущен: open в 16:30 МСК, close в 23:00 МСК");
 }
 
 export async function setTwoYearsData() {
@@ -196,10 +195,10 @@ export async function setTwoYearsData() {
 
       createdRecords.push(dataForTwoYears);
     }
-    logger.info(`✅ Создано/обновлено ${createdRecords.length} записей`);
+    console.log(`✅ Создано/обновлено ${createdRecords.length} записей`);
     return createdRecords;
   } catch (error) {
-    logger.error("❌ Ошибка в setTwoYearsData:", error);
+    console.error("❌ Ошибка в setTwoYearsData:", error);
     throw error;
   }
 }
