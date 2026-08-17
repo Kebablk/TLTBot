@@ -2,8 +2,9 @@ import cron from "node-cron";
 import dotenv from "dotenv";
 import { getAllHistory, getTLTData } from "../replies/repliesStrategy.js";
 import prisma from "../lib/prismaClient.js";
-import { calculateAnnualPeak, calculateYields } from "../config/settings.js";
+import { calculateYields } from "../config/settings.js";
 import YahooFinance from "yahoo-finance2";
+import { calculateAnnualPeak } from "../config/anchors.js";
 
 dotenv.config();
 const yahooFinance = new YahooFinance();
