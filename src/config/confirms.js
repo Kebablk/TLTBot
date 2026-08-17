@@ -1,4 +1,4 @@
-import YahooFinance from "yahoo-finance2/src/index.ts";
+import YahooFinance from "yahoo-finance2";
 import prisma from "../lib/prismaClient";
 import { rsi } from "financial-toolkit";
 
@@ -19,7 +19,11 @@ export async function calculateAnnualMinimumConf(closeTLT) {
     },
   });
 
-  const minPrice = yearlyMin._min.close || null``;
+  const minPrice = yearlyMin._min.close || null;
+  if (!minPrice || minPrice === 0) {
+    console.warn("Нет данных для расчёта годового минимума");
+    return false;
+  }
 
   return closeTLT <= minPrice * 1.02;
 }
@@ -55,7 +59,7 @@ export async function checkRSIConf() {
   }
 }
 
-export async function checkRealYieldConf(realYield) {
+export function checkRealYieldConf(realYield) {
   return realYield > 0;
 }
 
@@ -98,7 +102,7 @@ async function determineFedTrend() {
 }
 
 export async function checkFedRateConf(fedRate) {
-  const fedTrend = determineFedTrend();
+  const fedTrend = await determineFedTrend();
   return fedRate > 4.0 && fedTrend !== "rising";
 }
 

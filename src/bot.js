@@ -3,12 +3,7 @@ import getData from "./replies/replies.js";
 import { mainKeyboard } from "./keyboards/keyboards.js";
 import dotenv from "dotenv";
 import express from "express";
-import {
-  startDailyTasks,
-  setTwoYearsData,
-  saveOpen,
-  saveClose,
-} from "./core/dataProvider.js";
+import { startDailyTasks, setTwoYearsData } from "./core/dataProvider.js";
 import prisma from "./lib/prismaClient.js";
 dotenv.config();
 

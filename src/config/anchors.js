@@ -1,3 +1,6 @@
+import prisma from "../lib/prismaClient";
+import YahooFinance from "yahoo-finance2";
+
 export async function calculateAnnualPeak(closeTLT) {
   const yearlyHigh = await prisma.dailyData.aggregate({
     where: {
@@ -50,7 +53,7 @@ async function getTLTVolume() {
 }
 
 export async function calculateVolumetricPanic(openTLT, closeTLT) {
-  const volumeData = getTLTVolume();
+  const volumeData = await getTLTVolume();
   if (!volumeData) {
     console.warn("Не удалось получить данные по объему");
     return false;
