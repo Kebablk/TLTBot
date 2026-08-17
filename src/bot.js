@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import express from "express";
 import { startDailyTasks, setTwoYearsData } from "./core/dataProvider.js";
 import prisma from "./lib/prismaClient.js";
+import logger from "../logs/logger.js";
 dotenv.config();
 
 const TOKEN = process.env.BOT_TOKEN;
@@ -14,6 +15,10 @@ if (!TOKEN) {
   console.error("❌ BOT_TOKEN не найден в .env");
   process.exit(1);
 }
+
+logger.info("🚀 Бот запускается...");
+logger.info(`NODE_ENV: ${process.env.NODE_ENV}`);
+logger.info(`LOG_LEVEL: ${process.env.LOG_LEVEL || "info"}`);
 
 BOT.command("start", async (ctx) => {
   await ctx.reply(
