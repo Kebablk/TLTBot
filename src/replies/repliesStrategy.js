@@ -142,11 +142,13 @@ async function getTLTHistory() {
     interval: "1d",
   });
 
-  return result.map((item) => ({
-    date: item.date.toISOString().split("T")[0],
-    open: item.open,
-    close: item.close,
-  }));
+  return result
+    .filter((item) => item.close !== null && item.adjclose !== null)
+    .map((item) => ({
+      date: item.date.toISOString().split("T")[0],
+      open: item.open,
+      close: item.close,
+    }));
 }
 
 async function getTLTDividends() {
