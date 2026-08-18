@@ -1,5 +1,5 @@
 import YahooFinance from "yahoo-finance2";
-import prisma from "../lib/prismaClient";
+import prisma from "../lib/prismaClient.js";
 import { rsi } from "financial-toolkit";
 
 const yahooFinance = new YahooFinance();

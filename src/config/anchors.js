@@ -1,4 +1,4 @@
-import prisma from "../lib/prismaClient";
+import prisma from "../lib/prismaClient.js";
 import YahooFinance from "yahoo-finance2";
 
 export async function calculateAnnualPeak(closeTLT) {

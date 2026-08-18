@@ -138,9 +138,6 @@ async function saveClose() {
       inflation,
     );
 
-    const ACData = await convertionConfsAndAnchsToObj();
-    console.log("ACData: ", ACData);
-
     await prisma.dailyData.upsert({
       where: { date: today },
       update: {
@@ -157,6 +154,9 @@ async function saveClose() {
         yearlyMax: ACData.anchors[0],
       },
     });
+
+    const ACData = await convertionConfsAndAnchsToObj();
+    console.log("ACData: ", ACData);
 
     console.log(`Запись за ${today} обновлена (close)`);
   } catch (error) {
