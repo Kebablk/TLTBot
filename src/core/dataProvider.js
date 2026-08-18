@@ -144,14 +144,14 @@ async function saveClose() {
         close: closePrice,
         nominalYield: nominalYield,
         realYield: realYield,
-        yearlyMax: ACData.anchors[0],
+        // yearlyMax: ACData.anchors[0],
       },
       create: {
         date: today,
         close: closePrice,
         nominalYield: nominalYield,
         realYield: realYield,
-        yearlyMax: ACData.anchors[0],
+        // yearlyMax: ACData.anchors[0],
       },
     });
 
@@ -165,7 +165,7 @@ async function saveClose() {
 }
 
 export function startDailyTasks() {
-  cron.schedule("42 16 * * *", saveOpen, { timezone: "Europe/Moscow" });
+  cron.schedule("30 16 * * *", saveOpen, { timezone: "Europe/Moscow" });
   cron.schedule("30 23 * * *", saveClose, { timezone: "Europe/Moscow" });
   console.log("⏳ Планировщик запущен: open в 16:30 МСК, close в 23:00 МСК");
 }

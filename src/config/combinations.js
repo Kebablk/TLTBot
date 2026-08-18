@@ -55,10 +55,44 @@ export async function convertionConfsAndAnchsToObj() {
   }
 }
 
-export async function checkCombinations() {
+async function getConfirmed() {
   const data = await convertionConfsAndAnchsToObj();
   let confirmed = 0;
   for (let i = 0; i < data.confirms.length; i++) {
     if (data.confirms[i] === true) confirmed++;
   }
+
+  console.log("confirmed: ", confirmed);
+  return confirmed;
+}
+
+export async function calculateAndSetCombinations() {
+  const confirmed = await getConfirmed();
+  const ACData = await convertionConfsAndAnchsToObj();
+
+  const perfectEntranceComb = () =>
+    ACData.anchors[0] &&
+    ACData.anchors[1] &&
+    ACData.anchors[2] &&
+    confirmed >= 2;
+
+  const deepFallWithoutPanicComb = () =>
+    ACData.anchors[0] && ACData.anchors[1] && confirmed >= 3;
+
+  const compensationComb = () =>
+    (ACData.anchors[0] || ACData.anchors[1] || ACData.anchors[2]) &&
+    confirmed >= 4;
+
+  const withoutPreviousBottomComb = () =>
+    ACData.anchors[0] && ACData.anchors[2] && confirmed >= 3;
+
+  ACData.combinations = [
+    perfectEntranceComb(),
+    deepFallWithoutPanicComb(),
+    compensationComb(),
+    withoutPreviousBottomComb(),
+  ];
+
+  console.log("ACData: ", ACData);
+  return ACData;
 }
