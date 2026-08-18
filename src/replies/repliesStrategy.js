@@ -132,13 +132,16 @@ export async function getTLTData() {
 }
 
 async function getTLTHistory() {
-  const now = new Date();
+  const today = new Date();
   const twoYearsAgo = new Date();
   twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
 
+  const endDate = new Date(today);
+  endDate.setDate(endDate.getDate() - 1);
+
   const result = await yahooFinance.historical("TLT", {
     period1: twoYearsAgo,
-    period2: now,
+    period2: endDate,
     interval: "1d",
   });
 
