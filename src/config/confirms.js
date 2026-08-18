@@ -32,23 +32,50 @@ export async function calculateAnnualMinimumConf(closeTLT) {
 
 export async function checkRSIConf() {
   try {
-    const today = new Date();
-    const fourteenDaysAgo = new Date();
-    fourteenDaysAgo.setDate(today.getDate() - 14);
-
-    const result = await yahooFinance.historical("TLT", {
-      period1: fourteenDaysAgo,
-      period2: today,
-      interval: "1d",
+    const dbRecords = await prisma.dailyData.findMany({
+      where: {
+        close: { not: null },
+      },
+      orderBy: { date: "desc" },
+      take: 14,
+      select: { close: true },
     });
 
-    if (result.length < 14) {
-      console.warn(`Недостаточно данных для RSI: ${result.length} дней`);
-      return false;
-    }
-
-    const closes = result.map((item) => item.close);
+    let closes = dbRecords
+      .map((record) => record.close)
+      .filter((close) => close !== null);
     console.log("Closes за 14 дней: ", closes);
+
+    if (closes.length < 14) {
+      console.log(
+        `В БД только ${closes.length} дней для RSI, запрашиваю из Yahoo Finance...`,
+      );
+
+      const today = new Date();
+      const startDate = new Date();
+      startDate.setDate(today.getDate() - 60);
+
+      const result = await yahooFinance.historical("TLT", {
+        period1: startDate,
+        period2: today,
+        interval: "1d",
+      });
+
+      closes = result
+        .filter((item) => item.close !== null && item.adjclose !== null)
+        .map((item) => item.close);
+
+      if (closes.length < 14) {
+        console.warn(`❌ Недостаточно данных для RSI: ${closes.length} дней`);
+        return false;
+      }
+
+      closes = closes.slice(-14);
+      console.log(`Получено ${closes.length} дней из Yahoo Finance`);
+    } else {
+      closes.reverse();
+      console.log(`Получено ${closes.length} дней из БД`);
+    }
 
     const RSIValues = rsi(closes, 14);
     const RSI14 = RSIValues[RSIValues.length - 1];
@@ -56,7 +83,7 @@ export async function checkRSIConf() {
     console.log(`Текущий RSI (14): ${RSI14.toFixed(2)}`);
     return RSI14 < 30;
   } catch (error) {
-    console.error("Ошибка получения исторических данных: ", error);
+    console.error("Ошибка в checkRSIConf: ", error);
     return false;
   }
 }

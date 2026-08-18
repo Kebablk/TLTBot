@@ -20,7 +20,7 @@ export async function calculateAnnualPeak(closeTLT) {
   const yearlyMax = yearlyHigh._max.close || null;
   console.log("yearlyMax: ", yearlyMax);
 
-  return ((yearlyMax - closeTLT) / yearlyMax) * 100;
+  return ((yearlyMax - closeTLT) / yearlyMax) * 100 >= 20;
 }
 
 export async function isHistoricalLowAnchorTriggered(closeTLT) {
