@@ -80,7 +80,7 @@ export async function checkRSIConf() {
     const RSIValues = rsi(closes, 14);
     const RSI14 = RSIValues[RSIValues.length - 1];
 
-    console.log(`Текущий RSI (14): ${RSI14.toFixed(2)}`);
+    console.log(`Текущий RSI (14): ${RSI14}`);
     return RSI14 < 30;
   } catch (error) {
     console.error("Ошибка в checkRSIConf: ", error);
@@ -97,38 +97,63 @@ async function determineFedTrend() {
   const oneYearAgo = new Date();
   oneYearAgo.setDate(today.getDate() - 365);
 
-  const [first, last] = await Promise.all([
-    prisma.dailyData.findFirst({
-      where: {
-        date: {
-          gte: oneYearAgo.toISOString().split("T")[0],
-        },
+  let rates = await prisma.dailyData.findMany({
+    where: {
+      date: {
+        gte: oneYearAgo.toISOString().split("T")[0],
       },
-      orderBy: { date: "asc" },
-      select: { fedRate: true },
-    }),
-    prisma.dailyData.findFirst({
-      where: {
-        date: {
-          gte: oneYearAgo.toISOString().split("T")[0],
-        },
-      },
-      orderBy: { date: "desc" },
-      select: { fedRate: true },
-    }),
-  ]);
+      fedRate: { not: null },
+    },
+    orderBy: { date: "asc" },
+    select: { fedRate: true },
+  });
 
-  if (!first || !last || first.fedRate === null || last.fedRate === null) {
-    console.warn("Недостаточно данных для определения тренда");
-    return "stable";
-  }
+  let fedRates = rates
+    .map((rate) => rate.fedRate)
+    .filter((rate) => rate !== null && !isNaN(rate));
 
-  const diff = (last.fedRate = first.fedRate);
+  if (fedRates.length < 2) {
+    console.log(
+      `В БД только ${fedRates.length} записей для тренда, запрашиваю из FRED...`,
+    );
+
+    const FRED_API_KEY = process.env.FRED_API_KEY;
+    if (!FRED_API_KEY) {
+      console.warn("❌ FRED_API_KEY не задан, возвращаю 'stable'");
+      return "stable";
+    }
+
+    const url = `https://api.stlouisfed.org/fred/series/observations?series_id=DFEDTARU&api_key=${FRED_API_KEY}&file_type=json&observation_start=${oneYearAgo.toISOString().split("T")[0]}&sort_order=asc`;
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    fedRates = data.observations
+      .filter((o) => o.value !== "." && o.value !== null)
+      .map((o) => parseFloat(o.value))
+      .filter((r) => !isNaN(r));
+
+    if (fedRates.length < 2) {
+      console.warn(
+        `❌ Недостаточно данных для тренда: ${fedRates.length} записей`,
+      );
+      return "stable";
+    }
+
+    console.log(`Получено ${fedRates.length} записей из FRED`);
+  } else console.log(`Получено ${fedRates.length} записей из БД`);
+
+  const first = fedRates[0];
+  const last = fedRates[fedRates.length - 1];
+  const diff = last - first;
   const threshold = 0.05;
 
-  if (diff > threshold) return "rising";
-  if (diff < -threshold) return "falling";
-  return "stable";
+  let trend = "stable";
+  if (diff > threshold) trend = "rising";
+  if (diff < -threshold) trend = "falling";
+
+  console.log(`Тренд ставки ФРС: ${trend} (diff: ${diff})`);
+  return trend;
 }
 
 export async function checkFedRateConf(fedRate) {
