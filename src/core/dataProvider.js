@@ -165,7 +165,7 @@ async function saveClose() {
 }
 
 export function startDailyTasks() {
-  cron.schedule("40 16 * * *", saveOpen, { timezone: "Europe/Moscow" });
+  cron.schedule("42 16 * * *", saveOpen, { timezone: "Europe/Moscow" });
   cron.schedule("30 23 * * *", saveClose, { timezone: "Europe/Moscow" });
   console.log("⏳ Планировщик запущен: open в 16:30 МСК, close в 23:00 МСК");
 }

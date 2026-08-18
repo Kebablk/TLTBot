@@ -137,7 +137,7 @@ async function getTLTHistory() {
   twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
 
   const endDate = new Date(today);
-  endDate.setDate(endDate.getDate() - 1);
+  endDate.setDate(endDate.getDate() - 2);
 
   const result = await yahooFinance.historical("TLT", {
     period1: twoYearsAgo,
