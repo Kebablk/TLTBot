@@ -54,7 +54,7 @@ async function fetchPriceWithRetry(fetchFn, maxAttempts = 30, delayMs = 5000) {
   return null;
 }
 
-async function saveOpen() {
+export async function saveOpen() {
   try {
     const data = await getTLTData();
     const today = new Date().toISOString().split("T")[0];
@@ -105,7 +105,7 @@ async function saveOpen() {
   }
 }
 
-async function saveClose() {
+export async function saveClose() {
   try {
     const now = new Date();
     const dayOfWeek = now.getDay();
