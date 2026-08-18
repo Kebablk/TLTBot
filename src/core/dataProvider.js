@@ -89,7 +89,7 @@ async function saveOpen() {
 
     (async () => {
       await new Promise((resolve) => setTimeout(resolve, 300000));
-      const openPrice = await fetchPriceWithRetry(getOpenPrice, 120, 5000);
+      const openPrice = await fetchPriceWithRetry(getOpenPrice, 10, 10000);
       if (openPrice !== null) {
         await prisma.dailyData.update({
           where: { date: today },
@@ -165,7 +165,7 @@ async function saveClose() {
 }
 
 export function startDailyTasks() {
-  cron.schedule("30 16 * * *", saveOpen, { timezone: "Europe/Moscow" });
+  cron.schedule("40 16 * * *", saveOpen, { timezone: "Europe/Moscow" });
   cron.schedule("30 23 * * *", saveClose, { timezone: "Europe/Moscow" });
   console.log("⏳ Планировщик запущен: open в 16:30 МСК, close в 23:00 МСК");
 }
