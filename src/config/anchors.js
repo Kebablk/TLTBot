@@ -16,6 +16,7 @@ export async function calculateAnnualPeak(closeTLT) {
   });
 
   const yearlyMax = yearlyHigh._max.close || null;
+  console.log("yearlyMax: ", yearlyMax);
 
   return ((yearlyMax - closeTLT) / yearlyMax) * 100;
 }
@@ -35,6 +36,7 @@ export async function isHistoricalLowAnchorTriggered(closeTLT) {
   });
 
   const previousBottom = historicalLow._min.close;
+  console.log("previousBottom: ", previousBottom);
 
   if (!previousBottom || previousBottom === 0) return false;
   return closeTLT <= previousBottom * 1.02;
@@ -64,6 +66,8 @@ export async function calculateVolumetricPanic(openTLT, closeTLT) {
     console.warn("Средний объем равен 0 или отсутствует");
     return false;
   }
+
+  console.log(`volumetricPanic: ${volume}, ${avgVolume}`);
 
   return volume > avgVolume * 2 && ((openTLT - closeTLT) / openTLT) * 100 > 2;
 }

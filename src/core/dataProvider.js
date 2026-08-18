@@ -4,6 +4,12 @@ import { getAllHistory, getTLTData } from "../replies/repliesStrategy.js";
 import prisma from "../lib/prismaClient.js";
 import { calculateYields } from "../config/settings.js";
 import YahooFinance from "yahoo-finance2";
+import {
+  calculateAnnualPeak,
+  calculateVolumetricPanic,
+  isHistoricalLowAnchorTriggered,
+} from "../config/anchors.js";
+import { convertionConfsAndAnchsToObj } from "../config/combinations.js";
 
 dotenv.config();
 const yahooFinance = new YahooFinance();
@@ -33,6 +39,7 @@ async function fetchPriceWithRetry(fetchFn, maxAttempts = 30, delayMs = 5000) {
     try {
       const price = await fetchFn();
       if (price !== null && price !== 0) {
+        console.log("Price найден в fetch: ", price);
         return price;
       }
     } catch (err) {
@@ -120,7 +127,7 @@ async function saveClose() {
 
     const existing = await prisma.dailyData.findUnique({
       where: { date: today },
-      select: { dividend: true, inflation: true },
+      select: { open: true, dividend: true, inflation: true },
     });
 
     const dividend = existing?.dividend ?? null;
@@ -131,7 +138,8 @@ async function saveClose() {
       inflation,
     );
 
-    // const yearlyMax = calculateAnnualPeak(closePrice);
+    const ACData = await convertionConfsAndAnchsToObj();
+    console.log("ACData: ", ACData);
 
     await prisma.dailyData.upsert({
       where: { date: today },
@@ -139,14 +147,14 @@ async function saveClose() {
         close: closePrice,
         nominalYield: nominalYield,
         realYield: realYield,
-        // yearlyMax: yearlyMax,
+        yearlyMax: ACData.anchors[0],
       },
       create: {
         date: today,
         close: closePrice,
         nominalYield: nominalYield,
         realYield: realYield,
-        // yearlyMax: yearlyMax,
+        yearlyMax: ACData.anchors[0],
       },
     });
 
@@ -158,7 +166,7 @@ async function saveClose() {
 
 export function startDailyTasks() {
   cron.schedule("30 16 * * *", saveOpen, { timezone: "Europe/Moscow" });
-  cron.schedule("0 23 * * *", saveClose, { timezone: "Europe/Moscow" });
+  cron.schedule("30 23 * * *", saveClose, { timezone: "Europe/Moscow" });
   console.log("⏳ Планировщик запущен: open в 16:30 МСК, close в 23:00 МСК");
 }
 

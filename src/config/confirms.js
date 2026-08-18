@@ -25,6 +25,8 @@ export async function calculateAnnualMinimumConf(closeTLT) {
     return false;
   }
 
+  console.log("minPrice (annualMinimumConf): ", minPrice);
+
   return closeTLT <= minPrice * 1.02;
 }
 
@@ -103,6 +105,8 @@ async function determineFedTrend() {
 
 export async function checkFedRateConf(fedRate) {
   const fedTrend = await determineFedTrend();
+  console.log("fedTrend: ", fedTrend);
+
   return fedRate > 4.0 && fedTrend !== "rising";
 }
 
@@ -124,6 +128,7 @@ export async function checkMA50Conf(closeTLT) {
     }
 
     const MA50 = closes.reduce((a, b) => a + b, 0) / closes.length;
+    console.log("MA50: ", MA50);
 
     return closeTLT < MA50;
   } catch (error) {
