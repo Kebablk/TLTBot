@@ -66,6 +66,7 @@ export function checkRealYieldConf(realYield) {
 }
 
 async function determineFedTrend() {
+  const today = new Date();
   const oneYearAgo = new Date();
   oneYearAgo.setDate(today.getDate() - 365);
 
