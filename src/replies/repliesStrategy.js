@@ -141,7 +141,7 @@ async function getTLTHistory() {
 
   const result = await yahooFinance.historical("TLT", {
     period1: twoYearsAgo,
-    period2: endDate,
+    period2: today,
     interval: "1d",
   });
 
