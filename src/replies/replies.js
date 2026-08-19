@@ -23,21 +23,20 @@ export default async function getData(ctx) {
     });
 
     const today = new Date().toISOString().split("T")[0];
-    const existing = await prisma.dailyData.findUnique({
-      where: { date: today },
-      select: { close: true, dividend: true, inflation: true },
+    const existing = await prisma.dailyData.findFirst({
+      orderBy: { date: "desc" },
     });
-    const closeTLT = existing?.close ?? null;
-    const dividend = existing?.dividend ?? null;
-    const inflation = existing?.inflation ?? null;
-    const DBYields = calculateYields(closeTLT, dividend, inflation);
+    // const closeTLT = existing?.close ?? null;
+    // const dividend = existing?.dividend ?? null;
+    // const inflation = existing?.inflation ?? null;
+    // const DBYields = calculateYields(closeTLT, dividend, inflation);
     const APIYields = calculateYields(
       data.price,
       data.lastDividend,
       data.inflationRate,
     );
 
-    let reply = `📊 <b>API (сейчас)</b>:\n\n🏷️ Цена TLT: $${data.price.toFixed(2)}\n💰 Купон: ${data.lastDividend.toFixed(3)}, ${data.lastExDate}\n🏦 Ставка ФРС: ${data.fedRate.toFixed(2)}\n📈 Инфляция США: ${data.inflationRate.toFixed(2)}\n🗒️ nominalYield: ${APIYields.nominalYield.toFixed(2)}\n🗒️ realYield: ${APIYields.realYield.toFixed(2)}\n\n📁 <b>БД (последняя запись)</b>:\n\n📆 Дата: ${lastRecord.date}\n🔓 Открытие TLT: ${formatNumber(lastRecord.open)}\n🔒 Закрытие TLT: ${formatNumber(lastRecord.close)}\n💰 Купон: ${formatNumber(lastRecord.dividend, 3)}\n🏦 Ставка ФРС: ${formatNumber(lastRecord.fedRate)}\n📈 Инфляция США: ${formatNumber(lastRecord.inflation)}\n🗒️ nominalYield:  ${formatNumber(DBYields.nominalYield)}\n🗒️ realYield: ${formatNumber(DBYields.realYield)}`;
+    let reply = `📊 <b>API (сейчас)</b>:\n\n🏷️ Цена TLT: $${data.price.toFixed(2)}\n💰 Купон: ${data.lastDividend.toFixed(3)}, ${data.lastExDate}\n🏦 Ставка ФРС: ${data.fedRate.toFixed(2)}\n📈 Инфляция США: ${data.inflationRate.toFixed(2)}\n🗒️ nominalYield: ${APIYields.nominalYield.toFixed(2)}\n🗒️ realYield: ${APIYields.realYield.toFixed(2)}\n\n📁 <b>БД (последняя запись)</b>:\n\n📆 Дата: ${existing.date}\n🔓 Открытие TLT: ${formatNumber(existing.open)}\n🔒 Закрытие TLT: ${formatNumber(existing.close)}\n💰 Купон: ${formatNumber(existing.dividend, 3)}\n🏦 Ставка ФРС: ${formatNumber(existing.fedRate)}\n📈 Инфляция США: ${formatNumber(existing.inflation)}\n🗒️ nominalYield:  ${formatNumber(existing.nominalYield)}\n🗒️ realYield: ${formatNumber(existing.realYield)}`;
     return reply;
   } catch (err) {
     await ctx.reply("❌ Ошибка получения данных");

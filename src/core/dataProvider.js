@@ -144,14 +144,12 @@ export async function saveClose() {
         close: closePrice,
         nominalYield: nominalYield,
         realYield: realYield,
-        // yearlyMax: ACData.anchors[0],
       },
       create: {
         date: today,
         close: closePrice,
         nominalYield: nominalYield,
         realYield: realYield,
-        // yearlyMax: ACData.anchors[0],
       },
     });
 
