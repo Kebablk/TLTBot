@@ -1,6 +1,6 @@
 import YahooFinance from "yahoo-finance2";
 import prisma from "../lib/prismaClient.js";
-import { rsi } from "financial-toolkit";
+import { RSI } from "technicalindicators";
 
 const yahooFinance = new YahooFinance();
 
@@ -25,8 +25,6 @@ export async function calculateAnnualMinimumConf(closeTLT) {
     return false;
   }
 
-  console.log("minPrice (annualMinimumConf): ", minPrice);
-
   return closeTLT <= minPrice * 1.02;
 }
 
@@ -44,7 +42,6 @@ export async function checkRSIConf() {
     let closes = dbRecords
       .map((record) => record.close)
       .filter((close) => close !== null);
-    console.log("Closes за 14 дней: ", closes);
 
     if (closes.length < 14) {
       console.log(
@@ -77,7 +74,10 @@ export async function checkRSIConf() {
       console.log(`Получено ${closes.length} дней из БД`);
     }
 
-    const RSIValues = rsi(closes, 14);
+    const RSIValues = RSI.calculate({
+      values: closes,
+      period: 14,
+    });
     const RSI14 = RSIValues[RSIValues.length - 1];
 
     console.log(`Текущий RSI (14): ${RSI14}`);

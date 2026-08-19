@@ -93,6 +93,5 @@ export async function calculateAndSetCombinations() {
     withoutPreviousBottomComb(),
   ];
 
-  console.log("ACData: ", ACData);
   return ACData;
 }

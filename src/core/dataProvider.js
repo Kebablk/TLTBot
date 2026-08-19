@@ -9,7 +9,10 @@ import {
   calculateVolumetricPanic,
   isHistoricalLowAnchorTriggered,
 } from "../config/anchors.js";
-import { convertionConfsAndAnchsToObj } from "../config/combinations.js";
+import {
+  calculateAndSetCombinations,
+  convertionConfsAndAnchsToObj,
+} from "../config/combinations.js";
 
 dotenv.config();
 const yahooFinance = new YahooFinance();
@@ -155,6 +158,9 @@ export async function saveClose() {
 
     const ACData = await convertionConfsAndAnchsToObj();
     console.log("ACData: ", ACData);
+
+    const fullACData = await calculateAndSetCombinations();
+    console.log("updated ACData: ", fullACData);
 
     console.log(`Запись за ${today} обновлена (close)`);
   } catch (error) {
