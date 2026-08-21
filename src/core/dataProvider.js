@@ -74,7 +74,7 @@ export async function saveClose() {
       console.warn("❌ Цена close не получена, запись пропущена");
       return;
     }
-
+  
     const today = new Date().toISOString().split("T")[0];
 
     const existing = await prisma.dailyData.findUnique({
