@@ -3,28 +3,57 @@ import dotenv from "dotenv";
 import { getAllHistory, getTLTData } from "../replies/repliesStrategy.js";
 import prisma from "../lib/prismaClient.js";
 import { calculateYields } from "../config/settings.js";
+import YahooFinance from "yahoo-finance2";
+import {
+  calculateAnnualPeak,
+  calculateVolumetricPanic,
+  isHistoricalLowAnchorTriggered,
+} from "../config/anchors.js";
+import {
+  calculateAndSetCombinations,
+  convertionConfsAndAnchsToObj,
+} from "../config/combinations.js";
 
 dotenv.config();
+const yahooFinance = new YahooFinance();
 
-async function fetchPriceWithRetry(maxAttempts = 30, delayMs = 5000) {
+async function getOpenPrice() {
+  try {
+    const quote = await yahooFinance.quote("TLT");
+    return quote.regularMarketOpen || null;
+  } catch (err) {
+    console.warn("Ошибка получения open:", err.message);
+    return null;
+  }
+}
+
+async function getClosePrice() {
+  try {
+    const quote = await yahooFinance.quote("TLT");
+    return quote.regularMarketPrice || null;
+  } catch (err) {
+    console.warn("Ошибка получения close:", err.message);
+    return null;
+  }
+}
+
+async function fetchPriceWithRetry(fetchFn, maxAttempts = 30, delayMs = 5000) {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      const data = await getTLTData();
-      if (data.price && data.price !== 0) {
-        return data.price;
+      const price = await fetchFn();
+      if (price !== null && price !== 0) {
+        console.log("Price найден в fetch: ", price);
+        return price;
       }
     } catch (err) {
-      console.warn(
-        `⚠️ Ошибка получения цены (попытка ${attempt}):`,
-        err.message,
-      );
+      console.warn(`⚠️ Ошибка (попытка ${attempt}):`, err.message);
     }
-    console.log(
-      `⏳ Цена не получена, попытка ${attempt + 1} через ${delayMs}мс...`,
-    );
-    await new Promise((resolve) => setTimeout(resolve, delayMs));
+    if (attempt < maxAttempts) {
+      console.log(`⏳ Попытка ${attempt + 1} через ${delayMs}мс...`);
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
   }
-  console.warn(`❌ Цена не получена за ${maxAttempts} попыток`);
+  console.warn(`❌ Не удалось получить цену за ${maxAttempts} попыток`);
   return null;
 }
 
@@ -32,10 +61,20 @@ export async function saveOpen() {
   try {
     const data = await getTLTData();
     const today = new Date().toISOString().split("T")[0];
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      console.log(
+        `⏳ Сегодня выходной (${dayOfWeek === 0 ? "воскресенье" : "суббота"}), задача пропущена`,
+      );
+      return;
+    }
 
     await prisma.dailyData.upsert({
       where: { date: today },
       update: {
+        close: null,
         fedRate: data.fedRate,
         inflation: data.inflationRate,
         dividend: data.lastDividend,
@@ -46,12 +85,14 @@ export async function saveOpen() {
         inflation: data.inflationRate,
         dividend: data.lastDividend,
         open: null,
+        close: null,
       },
     });
     console.log(`Запись за ${today} создана/обновлена (без open)`);
 
     (async () => {
-      const openPrice = await fetchOpenWithRetry(60, 5000);
+      await new Promise((resolve) => setTimeout(resolve, 300000));
+      const openPrice = await fetchPriceWithRetry(getOpenPrice, 10, 10000);
       if (openPrice !== null) {
         await prisma.dailyData.update({
           where: { date: today },
@@ -69,7 +110,17 @@ export async function saveOpen() {
 
 export async function saveClose() {
   try {
-    const closePrice = await fetchPriceWithRetry(30, 5000);
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      console.log(
+        `⏳ Сегодня выходной (${dayOfWeek === 0 ? "воскресенье" : "суббота"}), задача пропущена`,
+      );
+      return;
+    }
+
+    const closePrice = await fetchPriceWithRetry(getClosePrice, 120, 5000);
     if (closePrice === null) {
       console.warn("❌ Цена close не получена, запись пропущена");
       return;
@@ -79,12 +130,11 @@ export async function saveClose() {
 
     const existing = await prisma.dailyData.findUnique({
       where: { date: today },
-      select: { dividend: true, inflation: true },
+      select: { open: true, dividend: true, inflation: true },
     });
 
     const dividend = existing?.dividend ?? null;
     const inflation = existing?.inflation ?? null;
-
     const { nominalYield, realYield } = calculateYields(
       closePrice,
       dividend,
@@ -106,6 +156,12 @@ export async function saveClose() {
       },
     });
 
+    const ACData = await convertionConfsAndAnchsToObj();
+    console.log("ACData: ", ACData);
+
+    const fullACData = await calculateAndSetCombinations();
+    console.log("updated ACData: ", fullACData);
+
     console.log(`Запись за ${today} обновлена (close)`);
   } catch (error) {
     console.error("Ошибка в saveClose:", error);
@@ -113,37 +169,39 @@ export async function saveClose() {
 }
 
 export function startDailyTasks() {
-  cron.schedule("34 19 * * *", saveOpen, { timezone: "Europe/Moscow" });
-  cron.schedule("35 19 * * *", saveClose, { timezone: "Europe/Moscow" });
+  cron.schedule("30 16 * * *", saveOpen, { timezone: "Europe/Moscow" });
+  cron.schedule("30 23 * * *", saveClose, { timezone: "Europe/Moscow" });
   console.log("⏳ Планировщик запущен: open в 16:30 МСК, close в 23:00 МСК");
 }
 
 export async function setTwoYearsData() {
   try {
     const data = await getAllHistory();
+    const today = new Date().toISOString().split("T")[0];
+    const filteredData = data.filter((item) => item.date <= today);
     const createdRecords = [];
 
-    for (let i = 0; i < data.length; i++) {
+    for (let i = 0; i < filteredData.length; i++) {
       const dataForTwoYears = await prisma.dailyData.upsert({
-        where: { date: data[i].date },
+        where: { date: filteredData[i].date },
         update: {
-          open: data[i].open,
-          close: data[i].close,
-          fedRate: data[i].fedRate,
-          inflation: data[i].inflation,
-          dividend: data[i].dividend,
-          nominalYield: data[i].nominalYield ?? null,
-          realYield: data[i].realYield ?? null,
+          open: filteredData[i].open,
+          close: filteredData[i].close,
+          fedRate: filteredData[i].fedRate,
+          inflation: filteredData[i].inflation,
+          dividend: filteredData[i].dividend,
+          nominalYield: filteredData[i].nominalYield ?? null,
+          realYield: filteredData[i].realYield ?? null,
         },
         create: {
-          date: data[i].date,
-          open: data[i].open,
-          close: data[i].close,
-          fedRate: data[i].fedRate,
-          inflation: data[i].inflation,
-          dividend: data[i].dividend,
-          nominalYield: data[i].nominalYield ?? null,
-          realYield: data[i].realYield ?? null,
+          date: filteredData[i].date,
+          open: filteredData[i].open,
+          close: filteredData[i].close,
+          fedRate: filteredData[i].fedRate,
+          inflation: filteredData[i].inflation,
+          dividend: filteredData[i].dividend,
+          nominalYield: filteredData[i].nominalYield ?? null,
+          realYield: filteredData[i].realYield ?? null,
         },
       });
 

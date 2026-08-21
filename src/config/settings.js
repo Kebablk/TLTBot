@@ -1,4 +1,7 @@
+import YahooFinance from "yahoo-finance2";
 import prisma from "../lib/prismaClient.js";
+
+const yahooFinance = new YahooFinance();
 
 export function calculateYields(price, dividend, inflation) {
   if (!price || price === 0 || !dividend || dividend === 0) {

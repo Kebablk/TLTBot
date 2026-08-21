@@ -132,21 +132,26 @@ export async function getTLTData() {
 }
 
 async function getTLTHistory() {
-  const now = new Date();
+  const today = new Date();
   const twoYearsAgo = new Date();
   twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
 
+  const endDate = new Date(today);
+  endDate.setDate(endDate.getDate() - 2);
+
   const result = await yahooFinance.historical("TLT", {
     period1: twoYearsAgo,
-    period2: now,
+    period2: today,
     interval: "1d",
   });
 
-  return result.map((item) => ({
-    date: item.date.toISOString().split("T")[0],
-    open: item.open,
-    close: item.close,
-  }));
+  return result
+    .filter((item) => item.close !== null && item.adjclose !== null)
+    .map((item) => ({
+      date: item.date.toISOString().split("T")[0],
+      open: item.open,
+      close: item.close,
+    }));
 }
 
 async function getTLTDividends() {
@@ -215,6 +220,6 @@ export async function getAllHistory() {
     close: price.close,
     dividend: divMap[price.date] || null,
     fedRate: fedMap[price.date] || null,
-    cpi: cpiMap[price.date] || null,
+    inflation: cpiMap[price.date] || null,
   }));
 }

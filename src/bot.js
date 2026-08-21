@@ -3,7 +3,12 @@ import getData from "./replies/replies.js";
 import { mainKeyboard } from "./keyboards/keyboards.js";
 import dotenv from "dotenv";
 import express from "express";
-import { startDailyTasks, setTwoYearsData } from "./core/dataProvider.js";
+import {
+  startDailyTasks,
+  setTwoYearsData,
+  saveOpen,
+  saveClose,
+} from "./core/dataProvider.js";
 import prisma from "./lib/prismaClient.js";
 dotenv.config();
 
@@ -36,8 +41,29 @@ BOT.catch((err) => {
   console.error("Global error: ", err);
 });
 
-const app = express();
+BOT.command("testopen", async (ctx) => {
+  try {
+    await ctx.reply("⏳ Запускаю тестовую запись open...");
+    await saveOpen();
+    await ctx.reply("✅ Тестовая запись open выполнена. Проверьте БД.");
+  } catch (error) {
+    console.error("Ошибка в testopen:", error);
+    await ctx.reply("❌ Ошибка при выполнении testopen");
+  }
+});
 
+BOT.command("testclose", async (ctx) => {
+  try {
+    await ctx.reply("⏳ Запускаю тестовую запись close...");
+    await saveClose();
+    await ctx.reply("✅ Тестовая запись close выполнена. Проверьте БД.");
+  } catch (error) {
+    console.error("Ошибка в testclose:", error);
+    await ctx.reply("❌ Ошибка при выполнении testclose");
+  }
+});
+
+const app = express();
 app.get("/health", (req, res) => {
   res.send("OK");
 });
@@ -50,7 +76,16 @@ const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === "production";
 
 (async function setHistory() {
-  const data = await setTwoYearsData();
+  const count = await prisma.dailyData.count();
+
+  if (count === 0) {
+    console.log("📊 База данных пуста, загружаем историю за 2 года...");
+    await setTwoYearsData();
+  } else {
+    console.log(
+      `📊 В базе данных уже есть ${count} записей, пропускаем загрузку истории`,
+    );
+  }
 })();
 startDailyTasks();
 
