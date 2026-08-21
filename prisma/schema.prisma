@@ -17,6 +17,15 @@ model DailyData {
   dividend  Float?
   nominalYield Float?
   realYield Float?
+  
+  annualPeak Boolean?
+  previousBottom Boolean?
+  volumetricPanic Boolean?
+  annualMinimum Boolean?
+  RSI Boolean?
+  realYieldConf Boolean?
+  fedRateConf Boolean?
+  MA50 Boolean?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -158,6 +158,33 @@ export async function saveClose() {
 
     const ACData = await convertionConfsAndAnchsToObj();
     console.log("ACData: ", ACData);
+    const [annualPeak, previousBottom, volumetricPanic] = ACData.anchors;
+    const [annualMinimum, RSI, realYieldConf, fedRateConf, MA50] =
+      ACData.confirms;
+
+    await prisma.dailyData.upsert({
+      where: { date: today },
+      update: {
+        annualPeak,
+        previousBottom,
+        volumetricPanic,
+        annualMinimum,
+        RSI,
+        realYieldConf,
+        fedRateConf,
+        MA50,
+      },
+      create: {
+        annualPeak,
+        previousBottom,
+        volumetricPanic,
+        annualMinimum,
+        RSI,
+        realYieldConf,
+        fedRateConf,
+        MA50,
+      },
+    });
 
     const fullACData = await calculateAndSetCombinations();
     console.log("updated ACData: ", fullACData);

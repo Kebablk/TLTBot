@@ -41,44 +41,23 @@ export async function checkRSIConf() {
 
     let closes = dbRecords
       .map((record) => record.close)
-      .filter((close) => close !== null);
+      .filter((close) => close !== null)
+      .reverse();
 
-    if (closes.length < 14) {
-      console.log(
-        `В БД только ${closes.length} дней для RSI, запрашиваю из Yahoo Finance...`,
-      );
-
-      const today = new Date();
-      const startDate = new Date();
-      startDate.setDate(today.getDate() - 60);
-
-      const result = await yahooFinance.historical("TLT", {
-        period1: startDate,
-        period2: today,
-        interval: "1d",
-      });
-
-      closes = result
-        .filter((item) => item.close !== null && item.adjclose !== null)
-        .map((item) => item.close);
-
-      if (closes.length < 14) {
-        console.warn(`❌ Недостаточно данных для RSI: ${closes.length} дней`);
-        return false;
-      }
-
-      closes = closes.slice(-14);
-      console.log(`Получено ${closes.length} дней из Yahoo Finance`);
-    } else {
-      closes.reverse();
-      console.log(`Получено ${closes.length} дней из БД`);
+    let growthAmount = 0;
+    let fallAmount = 0;
+    for (let i = 0; i < closes.length - 1; i++) {
+      if (closes[i + 1] - closes[i] >= 0)
+        growthAmount += closes[i + 1] - closes[i];
+      else fallAmount += Math.abs(closes[i + 1] - closes[i]);
     }
 
-    const RSIValues = RSI.calculate({
-      values: closes,
-      period: 14,
-    });
-    const RSI14 = RSIValues[RSIValues.length - 1];
+    const averageHeight = growthAmount / closes.length - 1;
+    const averageDrop = fallAmount / closes.length - 1;
+    if (averageDrop === 0) return 100;
+
+    const RS = averageHeight / averageDrop;
+    const RSI14 = 100 - 100 / (1 + RS);
 
     console.log(`Текущий RSI (14): ${RSI14}`);
     return RSI14 < 30;
