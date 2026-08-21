@@ -46,7 +46,7 @@ export async function getBottomZone(ctx) {
   try {
     const data = await calculateAndSetCombinations();
 
-    let reply = `📊 <b>Зона дна</b>:\n\n⚓ Якорь 1 (Падение от годового пика): ${data.anchors[0]}\n⚓ Якорь 2 (Достижение предыдущего дна): ${data.anchors[1]}\n⚓ Якорь 3 (Объемная паника): ${data.anchors[2]}\n\n✔️ Подтверждение 1 (Годовой минимум): ${data.confirms[0]}\nn✔️ Подтверждение 2 (RSI): ${data.confirms[1]}\nn✔️ Подтверждение 3 (Реальная доходность): ${data.confirms[2]}\nn✔️ Подтверждение 4 (Ставка ФРС): ${data.confirms[3]}\nn✔️ Подтверждение 5 (MA50): ${data.confirms[4]}`;
+    let reply = `📊 <b>Статус системы (Зона дна)</b>:\n\n⚓ ЯКОРЯ (обязательные)\n--------------------\n⚓ 1. Падение от годового пика > 20%: ${data.anchors[0]}\n⚓ 2. Достижение предыдущего дна: ${data.anchors[1]}\n⚓ 3. Объем > 2x среднего: ${data.anchors[2]}\n\n📊 ПОДТВЕРЖДЕНИЯ (5 фильтров)\n--------------------\n📊 1. Годовой минимум: ${data.confirms[0]}\n📊 2. RSI < 30: ${data.confirms[1]}\n📊 3. Реальная доходность > 0: ${data.confirms[2]}\n📊 4. Ставка ФРС > 4.0%: ${data.confirms[3]}\n📊 5. Цена ниже MA50: ${data.confirms[4]}`;
     return reply;
   } catch (err) {
     await ctx.reply("❌ Ошибка получения данных");
