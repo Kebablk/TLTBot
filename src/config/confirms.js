@@ -91,7 +91,7 @@ async function determineFedTrend() {
     .map((rate) => rate.fedRate)
     .filter((rate) => rate !== null && !isNaN(rate));
 
-  if (fedRates.length < 2) {
+  if (fedRates.length < 5) {
     console.log(
       `В БД только ${fedRates.length} записей для тренда, запрашиваю из FRED...`,
     );
@@ -112,7 +112,7 @@ async function determineFedTrend() {
       .map((o) => parseFloat(o.value))
       .filter((r) => !isNaN(r));
 
-    if (fedRates.length < 2) {
+    if (fedRates.length < 5) {
       console.warn(
         `❌ Недостаточно данных для тренда: ${fedRates.length} записей`,
       );
@@ -120,18 +120,26 @@ async function determineFedTrend() {
     }
 
     console.log(`Получено ${fedRates.length} записей из FRED`);
-  } else console.log(`Получено ${fedRates.length} записей из БД`);
+  } else {
+    console.log(`Получено ${fedRates.length} записей из БД`);
+  }
 
-  const first = fedRates[0];
-  const last = fedRates[fedRates.length - 1];
-  const diff = last - first;
-  const threshold = 0.05;
+  const n = fedRates.length;
+  const indices = fedRates.map((_, i) => i);
 
+  const sumX = indices.reduce((a, b) => a + b, 0);
+  const sumY = fedRates.reduce((a, b) => a + b, 0);
+  const sumXY = indices.reduce((a, b, i) => a + b * fedRates[i], 0);
+  const sumX2 = indices.reduce((a, b) => a + b * b, 0);
+
+  const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+
+  const threshold = 0.005;
   let trend = "stable";
-  if (diff > threshold) trend = "rising";
-  if (diff < -threshold) trend = "falling";
+  if (slope > threshold) trend = "rising";
+  if (slope < -threshold) trend = "falling";
 
-  console.log(`Тренд ставки ФРС: ${trend} (diff: ${diff})`);
+  console.log(`Тренд ставки ФРС: ${trend} (slope: ${slope})`);
   return trend;
 }
 
