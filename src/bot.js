@@ -1,5 +1,5 @@
 import { Bot, webhookCallback } from "grammy";
-import getData from "./replies/replies.js";
+import { getData, getBottomZone } from "./replies/replies.js";
 import { mainKeyboard } from "./keyboards/keyboards.js";
 import dotenv from "dotenv";
 import express from "express";
@@ -39,6 +39,15 @@ BOT.hears("📊 Данные", async (ctx) => {
 });
 BOT.catch((err) => {
   console.error("Global error: ", err);
+});
+
+BOT.hears("ℹ️ Зона дна", async (ctx) => {
+  const reply = await getBottomZone();
+
+  await ctx.reply(reply, {
+    reply_markup: mainKeyboard,
+    parse_mode: "HTML",
+  });
 });
 
 BOT.command("testopen", async (ctx) => {
