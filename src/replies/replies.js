@@ -8,7 +8,7 @@ function formatNumber(value, digits = 2) {
   return value !== null && value !== undefined ? value.toFixed(digits) : "нет";
 }
 
-export default async function getData(ctx) {
+export async function getData(ctx) {
   try {
     const data = await getTLTData();
     const lastRecord = await prisma.dailyData.findFirst({
@@ -42,7 +42,7 @@ export default async function getData(ctx) {
   }
 }
 
-export default async function getBottomZone(ctx) {
+export async function getBottomZone(ctx) {
   try {
     const data = await calculateAndSetCombinations();
 
