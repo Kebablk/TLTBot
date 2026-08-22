@@ -41,7 +41,7 @@ BOT.catch((err) => {
   console.error("Global error: ", err);
 });
 
-BOT.hears("ℹ️ Зона дна", async (ctx) => {
+BOT.hears("📉 Зона дна", async (ctx) => {
   const reply = await getBottomZone();
 
   await ctx.reply(reply, {
