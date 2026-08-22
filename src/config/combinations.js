@@ -86,12 +86,20 @@ export async function calculateAndSetCombinations() {
   const withoutPreviousBottomComb = () =>
     ACData.anchors[0] && ACData.anchors[2] && confirmed >= 3;
 
-  ACData.combinations = [
-    perfectEntranceComb(),
-    deepFallWithoutPanicComb(),
-    compensationComb(),
-    withoutPreviousBottomComb(),
-  ];
+  // ACData.combinations = [
+  //   perfectEntranceComb(),
+  //   deepFallWithoutPanicComb(),
+  //   compensationComb(),
+  //   withoutPreviousBottomComb(),
+  // ];
 
-  return ACData;
+  return {
+    ...ACData,
+    combinations: [
+      perfectEntranceComb(),
+      deepFallWithoutPanicComb(),
+      compensationComb(),
+      withoutPreviousBottomComb(),
+    ],
+  };
 }

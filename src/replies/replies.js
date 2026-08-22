@@ -46,20 +46,37 @@ export async function getBottomZone(ctx) {
   try {
     const data = await calculateAndSetCombinations();
 
+    let anchorsCount = 0;
+    let confirmsCount = 0;
+    let combinationsCount = 0;
+    for (let i = 0; i < data.anchors.length; i++) {
+      if (data.anchors[i]) anchorsCount++;
+    }
+    for (let i = 0; i < data.confirms.length; i++) {
+      if (data.confirms[i]) confirmsCount++;
+    }
+    for (let i = 0; i < data.combinations.length; i++) {
+      if (data.combinations[i]) combinationsCount++;
+    }
     let reply =
       `📊 <b>Статус системы (Зона дна)</b>:\n\n` +
-      `⚓ ЯКОРЯ (обязательные)\n` +
+      `⚓ <b>ЯКОРЯ</b>\n` +
       `--------------------\n` +
-      `⚓ 1. Падение от годового пика больше 20%: ${data.anchors[0] ?? "нет"}\n` +
-      `⚓ 2. Достижение предыдущего дна: ${data.anchors[1] ?? "нет"}\n` +
-      `⚓ 3. Объем больше 2x среднего: ${data.anchors[2] ?? "нет"}\n\n` +
-      `📊 ПОДТВЕРЖДЕНИЯ (5 фильтров)\n` +
+      `(${data.anchors[0] ? "<b>ДА</b>" : "нет"}) ⚓ <b>Якорь 1</b> (падение от годового пика больше 20%)\n` +
+      `(${data.anchors[1] ? "<b>ДА</b>" : "нет"}) ⚓ Якорь 2 (достижение предыдущего дна)\n` +
+      `(${data.anchors[2] ? "<b>ДА</b>" : "нет"}) ⚓ Якорь 3 (объем больше 2x среднего)\n\n` +
+      `📊 ПОДТВЕРЖДЕНИЯ\n` +
       `--------------------\n` +
-      `📊 1. Годовой минимум: ${data.confirms[0] ?? "нет"}\n` +
-      `📊 2. RSI меньше 30: ${data.confirms[1] ?? "нет"}\n` +
-      `📊 3. Реальная доходность больше 0: ${data.confirms[2] ?? "нет"}\n` +
-      `📊 4. Ставка ФРС больше 4.0%: ${data.confirms[3] ?? "нет"}\n` +
-      `📊 5. Цена ниже MA50: ${data.confirms[4] ?? "нет"}`;
+      `(${data.confirms[0] ? "<b>ДА</b>" : "нет"}) 📉 <b>Годовой минимум</b>\n` +
+      `(${data.confirms[1] ? "<b>ДА</b>" : "нет"}) 📊 <b>RSI меньше 30</b>\n` +
+      `(${data.confirms[2] ? "<b>ДА</b>" : "нет"}) 📊 <b>Реальная доходность больше 0</b>\n` +
+      `(${data.confirms[3] ? "<b>ДА</b>" : "нет"}) 📊 <b>Ставка ФРС больше 4.0%</b>\n` +
+      `(${data.confirms[4] ? "<b>ДА</b>" : "нет"}) 📊 <b>Цена ниже MA50</b>\n\n` +
+      `🎯 <b>ИТОГ</b>\n` +
+      `--------------------\n` +
+      `<b>Якорей:</b> <b>${anchorsCount}</b> из ${data.anchors.length}\n` +
+      `<b>Подтверждений:</b> <b>${confirmsCount}</b> из ${data.confirms.length}\n` +
+      `Сигнал к покупке: <b>${combinationsCount > 0 ? "ДА" : "НЕТ"}</b> ⛔`;
     return reply;
   } catch (err) {
     await ctx.reply("❌ Ошибка получения данных");
