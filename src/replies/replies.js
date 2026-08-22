@@ -75,7 +75,7 @@ export async function getBottomZone(ctx) {
       `🎯 <b>ИТОГ</b>\n` +
       `--------------------\n` +
       `<b>Якорей:</b> <b>${anchorsCount}</b> из ${data.anchors.length}\n` +
-      `<b>Подтверждений:</b> <b>${confirmsCount}</b> из ${data.confirms.length}\n` +
+      `<b>Подтверждений:</b> <b>${confirmsCount}</b> из ${data.confirms.length}\n\n` +
       `Сигнал к покупке: <b>${combinationsCount > 0 ? "ДА" : "НЕТ"}</b> ⛔`;
     return reply;
   } catch (err) {
