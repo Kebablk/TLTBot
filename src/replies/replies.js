@@ -59,7 +59,7 @@ export async function getBottomZone(ctx) {
       if (data.combinations[i]) combinationsCount++;
     }
     let reply =
-      `📊 <b>Статус системы (Зона дна)</b>:\n\n` +
+      `📉 <b>Статус системы (Зона дна)</b>:\n\n` +
       `⚓ <b>ЯКОРЯ</b>\n` +
       `--------------------\n` +
       `(${data.anchors[0] ? "<b>✅ ДА</b>" : "нет"}) ⚓ <b>Якорь 1</b> (падение от годового пика больше 20%)\n` +
